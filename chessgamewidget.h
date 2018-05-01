@@ -5,7 +5,6 @@
 #include <QtWidgets>
 #include "constants.h"
 #include "figure.h"
-#include "boardgraphicsitem.h"
 #include "extendedgraphicsview.h"
 
 class ChessGameWidget : public QWidget
@@ -37,7 +36,6 @@ private:
     QPixmap whitePawnPixmap, whiteKnightPixmap, whiteBishopPixmap, whiteRookPixmap, whiteQueenPixmap, whiteKingPixmap;
     ExtendedGraphicsView chessView;
     QGraphicsScene chessScene;
-    BoardGraphicsItem boardGraphicsItem;
     QGraphicsPixmapItem chessBoardPixmapItem;
     Figure* board[NUMBER_OF_SQUARES][NUMBER_OF_SQUARES];
     std::vector<Figure*> blackFigures, whiteFigures;

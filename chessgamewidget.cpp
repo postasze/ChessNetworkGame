@@ -11,7 +11,6 @@ ChessGameWidget::ChessGameWidget(QWidget *parent) : QWidget(parent)
     chessView.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     chessView.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     chessView.setBackgroundBrush(QBrush(DARK_FIELD_COLOR));
-    //chessScene.addItem(&this->boardGraphicsItem);
 
     chessBoardPixmapItem.setPixmap(QPixmap::fromImage(QImage(":/images/chess_board/chess_board.png")));
     chessScene.addItem(&chessBoardPixmapItem);
@@ -114,7 +113,6 @@ void ChessGameWidget::mousePressEvent(QMouseEvent *event)
     std::cout << "mousePressEvent" << std::endl;
 
     draggedFigure = dynamic_cast<Figure*>(chessScene.itemAt(event->pos(), QTransform()));
-    std::cout << draggedFigure << std::endl;
 }
 
 void ChessGameWidget::mouseReleaseEvent(QMouseEvent *event)

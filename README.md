@@ -15,4 +15,4 @@ Instrukcja instalacji i uruchamiania aplikacji
 
 1.6 Następnie można już uruchomić aplikację z pliku ChessNetworkGame.exe (w windowsie może być konieczne ustawienie ścieżki do bibliotek Qt w zmiennych środowiskowych lub przekopiowanie bibliotek Qt do folderu w którym znajduje się plik exe, biblioteki Qt znajdują się w ścieżce typu C:\Qt\Tools\QtCreator\bin)
 
-Kompilacja aplikacji w systemie Linux Ubuntu 16.04 powinna przebiegać o wiele sprawniej i prościej niż w systemie Windows. Alternatywnie można też uruchomić aplikację wewnątrz środowiska Qt
+Kompilacja aplikacji w systemie Linux powinna przebiegać o wiele sprawniej i prościej niż w systemie Windows. Alternatywnie można też uruchomić aplikację wewnątrz środowiska Qt

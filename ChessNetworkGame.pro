@@ -28,20 +28,20 @@ SOURCES += \
         mainwindow.cpp \
     chessgamewidget.cpp \
     figure.cpp \
-    boardgraphicsitem.cpp \
-    extendedgraphicsview.cpp
+    extendedgraphicsview.cpp \
+    chesstable.cpp
 
 HEADERS += \
         mainwindow.h \
     chessgamewidget.h \
     constants.h \
     figure.h \
-    boardgraphicsitem.h \
-    extendedgraphicsview.h
+    extendedgraphicsview.h \
+    chesstable.h
 
 FORMS += \
-    mainwindow1.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    chesstable.ui
 
 RESOURCES += \
     images.qrc
