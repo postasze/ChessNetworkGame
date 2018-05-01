@@ -1,5 +1,5 @@
 # Chess network game
-Sieciowa gra w szachy wykorzystująca sieciowa API BSD Sockets
+Sieciowa gra w szachy wykorzystująca sieciowe API BSD Sockets
 
 Instrukcja instalacji i uruchamiania aplikacji
 
