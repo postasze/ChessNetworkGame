@@ -13,4 +13,3 @@ ChessTable::~ChessTable()
 {
     delete ui;
 }
-

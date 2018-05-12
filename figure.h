@@ -10,8 +10,8 @@ public:
     Figure(PlayerColor figureColor, FigureType figureType, const QPointF& scenePosition, const QPixmap& pixmap);
     Figure();
 
-    FigureType figureType;
     PlayerColor figureColor;
+    FigureType figureType;
 private:
 };
 

@@ -46,14 +46,15 @@ void MainWindow::openNewChessTable()
 
 void MainWindow::activateSubWindow(QMdiSubWindow* qMdiSubWindow)
 {
+
 }
 
 void MainWindow::deleteChessTable(QObject* qObject)
 {
     ChessTable* chessTable = (ChessTable*) qObject;
-    for(unsigned int i = 0; i < ui->chessTablesListWidget->count(); i++)
+    for(int i = 0; i < ui->chessTablesListWidget->count(); i++)
     {
-        if(ui->chessTablesListWidget->item(i)->text() == QString("Stół szachowy nr: ") + QString::number(chessTable->chessTableID))
+        if (ui->chessTablesListWidget->item(i)->text() == QString("Stół szachowy nr: ") + QString::number(chessTable->chessTableID))
             ui->chessTablesListWidget->takeItem(i);
     }
 }
