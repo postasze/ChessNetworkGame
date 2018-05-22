@@ -1348,7 +1348,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QPushButton" name="whiteColorChoiceButton">
+            <widget class="QPushButton" name="choseWhiteColorSeatButton">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -1361,7 +1361,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="whiteColorCancelButton">
+            <widget class="QPushButton" name="freeWhiteColorSeatButton">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -2260,7 +2260,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QPushButton" name="blackColorChoiceButton">
+            <widget class="QPushButton" name="choseBlackColorSeatButton">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -2273,7 +2273,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="blackColorCancelButton">
+            <widget class="QPushButton" name="freeBlackColorSeatButton">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>

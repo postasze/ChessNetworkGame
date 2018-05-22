@@ -8,8 +8,9 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = ChessNetworkGame
+TARGET = ChessNetworkGameClient
 TEMPLATE = app
+CONFIG += console c++11
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
@@ -29,7 +30,10 @@ SOURCES += \
     chessgamewidget.cpp \
     figure.cpp \
     extendedgraphicsview.cpp \
-    chesstable.cpp
+    chesstable.cpp \
+    logindialog.cpp \
+    communicator.cpp \
+    controller.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -37,11 +41,15 @@ HEADERS += \
     constants.h \
     figure.h \
     extendedgraphicsview.h \
-    chesstable.h
+    chesstable.h \
+    logindialog.h \
+    communicator.h \
+    controller.h
 
 FORMS += \
     mainwindow.ui \
-    chesstable.ui
+    chesstable.ui \
+    logindialog.ui
 
 RESOURCES += \
     images.qrc

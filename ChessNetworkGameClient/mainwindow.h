@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QtWidgets>
+#include "logindialog.h"
+#include "communicator.h"
+#include "chesstable.h"
 
 namespace Ui {
 class MainWindow;
@@ -16,17 +19,16 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    Ui::MainWindow *ui;
+    void openChessTableWindow(ChessTable* chessTableWidget);
+    void closeChessTableWindow(ChessTable *chessTableWidget);
+
 private slots:
-    void openNewChessTable();
     void activateSubWindow(QMdiSubWindow* qMdiSubWindow);
-    void deleteChessTable(QObject* qObject);
 
 private:
-    void loadSubWindow(QWidget *widget, QString title);
+    void loadSubWindow(QWidget *widget);
     void removeSubWindow();
-
-    Ui::MainWindow *ui;
-    int currentChessTableID;
 };
 
 #endif // MAINWINDOW_H
