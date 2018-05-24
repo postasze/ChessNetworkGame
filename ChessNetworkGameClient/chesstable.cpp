@@ -1,8 +1,8 @@
 #include "chesstable.h"
 #include "ui_chesstable.h"
 
-ChessTable::ChessTable(QWidget *parent, int chessTableID) :
-    QWidget(parent), chessTableID(chessTableID),
+ChessTable::ChessTable(QWidget *parent, int chessTableId) :
+    QWidget(parent), chessTableId(chessTableId),
     ui(new Ui::ChessTable)
 {
     ui->setupUi(this);

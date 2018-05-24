@@ -1,15 +1,16 @@
-#include "communicator.h"
+#include "controller.h"
 
 int  main(int argc, char **argv)
 {
-    Communicator communicator;
+    Controller controller;
+
     int result;
 
-    if((result = communicator.openCommunication()) != 0)
+    if((result = controller.openCommunication()) != 0)
         return result;
 
-    communicator.acceptClientConnections();
-    communicator.closeCommunication();
+    controller.acceptClientConnections();
+    controller.closeCommunication();
 
     return 0;
 }

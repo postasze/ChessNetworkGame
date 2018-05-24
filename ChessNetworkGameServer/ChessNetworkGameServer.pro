@@ -6,9 +6,13 @@ CONFIG += thread
 
 SOURCES += main.cpp \
     clienthandler.cpp \
-    communicator.cpp
+    communicator.cpp \
+    controller.cpp \
+    chesstable.cpp
 
 HEADERS += \
     constants.h \
     clienthandler.h \
-    communicator.h
+    communicator.h \
+    controller.h \
+    chesstable.h

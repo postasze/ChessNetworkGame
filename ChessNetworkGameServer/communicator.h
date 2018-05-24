@@ -2,7 +2,11 @@
 #define COMMUNICATOR_H
 
 #include <vector>
-#include "clienthandler.h"
+#include "constants.h"
+#include <string>
+
+class Controller;
+class ClientHandler;
 
 class Communicator
 {
@@ -13,9 +17,13 @@ public:
     void acceptClientConnections();
     void closeCommunication();
 
+    static void* listenToClient(void* arg);
+    void writeReplyToClient(ClientHandler* clientHandler, std::string message);
+    void setController(Controller *controller);
+
 private:
-    std::vector<ClientHandler*> clientHandlers;
     int serverSocketDescriptor;
+    static Controller *controller;
 
 };
 

@@ -10,16 +10,23 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
+#include "controller.h"
 
 int Communicator::socketDescriptor;
 pthread_t Communicator::serverListenerThreadId;
 char Communicator::inputBuffer[BUFFER_SIZE];
 char Communicator::outputBuffer[BUFFER_SIZE];
 
-Communicator::Communicator()
+Communicator::Communicator(QObject *parent) : QObject(parent)
 {
     memset(inputBuffer, 0, BUFFER_SIZE);
     memset(outputBuffer, 0, BUFFER_SIZE);
+    emit replyFromServer(inputBuffer);
+}
+
+Communicator::~Communicator()
+{
+
 }
 
 int Communicator::openCommunication(char *serverName, int portNumber)
@@ -46,20 +53,30 @@ int Communicator::openCommunication(char *serverName, int portNumber)
     memcpy((char *) &server.sin_addr, (char *) hp->h_addr,
         hp->h_length);
     server.sin_port = htons(portNumber);
-    if (connect(socketDescriptor, (struct sockaddr *) &server, sizeof server)
+    if (::connect(socketDescriptor, (struct sockaddr *) &server, sizeof server)
         == -1) {
         perror("connecting stream socket");
         return 1;
     }
 
-    pthread_create(&serverListenerThreadId, NULL, &listenToServer, NULL);
+    pthread_create(&serverListenerThreadId, NULL, &listenToServer, this);
 
     return 0;
+}
+
+void Communicator::sendMessageToServer(std::string message)
+{
+    memset(outputBuffer, 0, BUFFER_SIZE);
+    strcpy(outputBuffer, message.c_str());
+    write(socketDescriptor, outputBuffer, BUFFER_SIZE);
+
 }
 
 void* Communicator::listenToServer(void *arg)
 {
     int returnValue;
+
+    Communicator *communicator = (Communicator*) arg;
 
     do
     {
@@ -69,9 +86,7 @@ void* Communicator::listenToServer(void *arg)
         else if (returnValue == 0)
             printf("Ending connection\n");
         else
-        {
-
-        }
+            emit communicator->replyFromServer(inputBuffer);
     }
     while (returnValue != 0);
 
@@ -82,4 +97,3 @@ void Communicator::closeCommunication()
 {
     close(socketDescriptor);
 }
-

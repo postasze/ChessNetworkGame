@@ -7,21 +7,11 @@ LoginDialog::LoginDialog(QWidget *parent) :
     ui(new Ui::LoginDialog)
 {
     ui->setupUi(this);
-    connect(ui->loginPushButton, &QPushButton::clicked, this, &LoginDialog::loginPushButtonClicked);
+
+    this->setWindowTitle("Logowanie");
 }
 
 LoginDialog::~LoginDialog()
 {
     delete ui;
-}
-
-void LoginDialog::loginPushButtonClicked()
-{
-    QString userName = ui->userNameLineEdit->text();
-
-    if(!userName.isEmpty())
-    {
-        emit userLoggedIn(userName);
-        this->done(QDialog::Accepted);
-    }
 }

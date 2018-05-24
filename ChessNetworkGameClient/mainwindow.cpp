@@ -42,7 +42,7 @@ void MainWindow::closeChessTableWindow(ChessTable *chessTableWidget)
 {
     for(int i = 0; i < ui->chessTablesListWidget->count(); i++)
     {
-        if (ui->chessTablesListWidget->item(i)->text() == QString("Stół szachowy nr: ") + QString::number(chessTableWidget->chessTableID))
+        if (ui->chessTablesListWidget->item(i)->text() == QString("Stół szachowy nr: ") + QString::number(chessTableWidget->chessTableId))
             ui->chessTablesListWidget->takeItem(i);
     }
 }

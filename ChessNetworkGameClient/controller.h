@@ -17,21 +17,30 @@ public:
     void run();
     void closeCommunication();
 
-signals:
-
 private slots:
-    void userLoggedIn(QString userName);
+    void loginDialogPushButtonClicked();
     void loginDialogFinished(int result);
-    void createNewChessTable();
+    void createChessTablePushButtonClicked();
+    void selectedChessTable(const QString& chessTableTitle);
+    void joinChessTablePushButtonClicked();
     void deleteChessTable(QObject* qObject);
+    void createNewChessTable(int id);
+    void handleReplyFromServer(QString messageFromServer);
+    void choseBlackColorSeatButtonClicked();
+    void freeBlackColorSeatButtonClicked();
+    void choseWhiteColorSeatButtonClicked();
+    void freeWhiteColorSeatButtonClicked();
+    void startButtonClicked();
+    void resignButtonClicked();
 
 private:
     Communicator communicator;
     MainWindow mainWindow;
     LoginDialog loginDialog;
+    QMessageBox qMessageBox;
     std::vector<ChessTable*> chessTables;
     QString userName;
-    int currentChessTableID;
+    int currentlySelectedChessTableId;
 };
 
 #endif // CONTROLLER_H

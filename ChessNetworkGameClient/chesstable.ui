@@ -1333,7 +1333,7 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Gracz 1</string>
+              <string/>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2245,7 +2245,7 @@
               <bool>true</bool>
              </property>
              <property name="text">
-              <string>Gracz 2</string>
+              <string/>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>

@@ -12,13 +12,14 @@ class ChessTable : public QWidget
     Q_OBJECT
 
 public:
-    explicit ChessTable(QWidget *parent = 0, int chessTableID = 0);
+    explicit ChessTable(QWidget *parent = 0, int chessTableId = 0);
     ~ChessTable();
 
-    int chessTableID;
+    int chessTableId;
+
+    Ui::ChessTable *ui;
 
 private:
-    Ui::ChessTable *ui;
 };
 
 #endif // CHESSTABLE_H

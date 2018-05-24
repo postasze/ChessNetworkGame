@@ -15,14 +15,11 @@ public:
     explicit LoginDialog(QWidget *parent = 0);
     ~LoginDialog();
 
-public slots:
-    void loginPushButtonClicked();
+    Ui::LoginDialog *ui;
 
-signals:
-    void userLoggedIn(QString userName);
+public slots:
 
 private:
-    Ui::LoginDialog *ui;
 };
 
 #endif // LOGINDIALOG_H

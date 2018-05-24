@@ -12,6 +12,10 @@
 #include <vector>
 #include <iostream>
 #include <time.h>
+#include "clienthandler.h"
+#include "controller.h"
+
+Controller *Communicator::controller;
 
 Communicator::Communicator()
 {
@@ -61,10 +65,8 @@ void Communicator::acceptClientConnections()
         if (fullAssociatedSocketDescriptor == -1 )
              perror("accept");
         else
-        {
-            clientHandlers.push_back(new ClientHandler(fullAssociatedSocketDescriptor));
-            pthread_create(&clientHandlers.back()->pthreadId, NULL, &clientHandlers.back()->handleClient, (void*) clientHandlers.back());
-        }
+            controller->createNewClientHandler(fullAssociatedSocketDescriptor);
+
     } while(true);
     /*
      * gniazdo serverSocketDescriptor nie zostanie nigdy zamkniete jawnie,
@@ -73,7 +75,44 @@ void Communicator::acceptClientConnections()
      */
 }
 
+// funkcja obslugujaca klienta
+void* Communicator::listenToClient(void* arg)
+{
+    ClientHandler *clientHandler = (ClientHandler*) arg;
+    int returnValue;
+
+    do
+    {
+        memset(clientHandler->inputBuffer, 0, BUFFER_SIZE);
+        if ((returnValue = read(clientHandler->socketDescriptor, clientHandler->inputBuffer, BUFFER_SIZE)) == -1)
+            perror("reading stream message");
+        else if (returnValue == 0)
+        {
+            printf("Ending connection\n");
+            controller->deleteClientHandler(clientHandler);
+        }
+        else
+            controller->handleClientRequest(clientHandler);
+    }
+    while (returnValue != 0);
+
+    return 0;
+}
+
+void Communicator::writeReplyToClient(ClientHandler* clientHandler, std::string message)
+{
+    memset(clientHandler->outputBuffer, 0, BUFFER_SIZE);
+    strcpy(clientHandler->outputBuffer, message.c_str());
+
+    write(clientHandler->socketDescriptor, clientHandler->outputBuffer, BUFFER_SIZE);
+}
+
 void Communicator::closeCommunication()
 {
     close(serverSocketDescriptor);
+}
+
+void Communicator::setController(Controller *controller)
+{
+    this->controller = controller;
 }
