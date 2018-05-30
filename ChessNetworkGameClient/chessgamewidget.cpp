@@ -22,6 +22,12 @@ ChessGameWidget::ChessGameWidget(QWidget *parent) : QWidget(parent)
 
     draggedFigure = nullptr;
     currentPlayerColor = PlayerColor::White;
+
+    hasKingBeenMoved = false;
+    isKingChecked = false;
+    hasLeftRookBeenMoved = false;
+    hasRightRookBeenMoved = false;
+
 }
 
 ChessGameWidget::~ChessGameWidget()
@@ -47,10 +53,10 @@ void ChessGameWidget::loadFigureImages()
 
 void ChessGameWidget::createFigures()
 {
-    for(unsigned int i = 0; i < NUMBER_OF_SQUARES; i++)
+    for(unsigned int i = 0; i < NUMBER_OF_SQUARES; ++i)
         whiteFigures.push_back(new Figure(PlayerColor::White, FigureType::Pawn, QPointF(i * SQUARE_SIZE, 6 * SQUARE_SIZE), whitePawnPixmap));
 
-    for(unsigned int i = 0; i < NUMBER_OF_SQUARES; i++)
+    for(unsigned int i = 0; i < NUMBER_OF_SQUARES; ++i)
         blackFigures.push_back(new Figure(PlayerColor::Black, FigureType::Pawn, QPointF(i * SQUARE_SIZE, 1 * SQUARE_SIZE), blackPawnPixmap));
 
     whiteFigures.push_back(new Figure(PlayerColor::White, FigureType::Rook, QPointF(0 * SQUARE_SIZE, 7 * SQUARE_SIZE), whiteRookPixmap));
@@ -75,8 +81,8 @@ void ChessGameWidget::createBoard()
 {
     QPoint boardPoint;
 
-    for(unsigned int i = 0; i < NUMBER_OF_SQUARES; i++)
-        for(unsigned int j = 0; j < NUMBER_OF_SQUARES; j++)
+    for(unsigned int i = 0; i < NUMBER_OF_SQUARES; ++i)
+        for(unsigned int j = 0; j < NUMBER_OF_SQUARES; ++j)
             board[i][j] = nullptr;
 
     foreach (Figure *figure, blackFigures)
@@ -139,11 +145,14 @@ void ChessGameWidget::mouseReleaseEvent(QMouseEvent *event)
             QPointF scenePosition = boardCoordinatesToPixelCoordinates(boardPoint);
             QPoint draggingStartPoint = pixelCoordinatesToBoardCoordinates(draggingStartPosition);
 
+
             board[draggingStartPoint.x()][draggingStartPoint.y()] = nullptr;
             delete board[boardPoint.x()][boardPoint.y()]; // removal of opponent figure if there is any on this square
             board[boardPoint.x()][boardPoint.y()] = draggedFigure;
             draggedFigure->setPos(scenePosition);
 
+            if (draggedFigure->figureType == FigureType::Pawn && (scenePosition.y() == 7*SQUARE_SIZE || scenePosition.y() == 0))
+                promotePawn(draggedFigure);
             currentPlayerColor = getOpponentColor(currentPlayerColor);
         }
 
@@ -325,7 +334,7 @@ void ChessGameWidget::addAllPossibleMovesInDirection(Figure *figure, std::vector
         }
         else
             break;
-        i++;
+        ++i;
     }
 }
 
@@ -417,4 +426,12 @@ void ChessGameWidget::deletePossibleMoveSquares()
         delete possibleMoveSquare;
     }
     possibleMoveSquares.clear();
+}
+
+void ChessGameWidget::promotePawn(Figure* promotedOne)
+{
+    promotedOne->figureType = FigureType::Queen;
+    QPixmap newPixmap = promotedOne->figureColor == PlayerColor::Black ? blackQueenPixmap : whiteQueenPixmap;
+    promotedOne->setPixmap(newPixmap);
+    std::cout<<promotedOne->figureType;
 }

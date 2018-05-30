@@ -39,6 +39,7 @@ private:
     void rookPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves);
     void queenPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves);
     void kingPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves);
+    void promotePawn(Figure* promotedOne);
     void createPossibleMoveSquares(const std::vector<QPoint>& possibleMoves);
     void deletePossibleMoveSquares();
 
@@ -54,6 +55,11 @@ private:
     Figure *draggedFigure;
     QPointF draggingStartPosition;
     std::vector<QPoint> possibleMoves;
+
+    bool hasKingBeenMoved;
+    bool isKingChecked;
+    bool hasLeftRookBeenMoved;
+    bool hasRightRookBeenMoved;
 };
 
 #endif // CHESSGAMEWIDGET_H

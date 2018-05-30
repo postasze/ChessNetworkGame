@@ -12,7 +12,9 @@ public:
 
     PlayerColor figureColor;
     FigureType figureType;
+
 private:
+
 };
 
 #endif // FIGURE_H

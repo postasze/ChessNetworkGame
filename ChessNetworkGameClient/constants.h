@@ -20,4 +20,19 @@ enum PlayerColor {
     Black, White
 };
 
+
+inline std::ostream &operator<<(std::ostream &os, const FigureType &fig) {
+
+    os << static_cast<std::underlying_type<FigureType>::type> (fig);
+
+    return os;
+}
+
+inline std::ostream &operator<<(std::ostream &os, const PlayerColor &color) {
+
+    os << static_cast<std::underlying_type<PlayerColor>::type> (color);
+
+    return os;
+}
+
 #endif // CONSTANTS_H
