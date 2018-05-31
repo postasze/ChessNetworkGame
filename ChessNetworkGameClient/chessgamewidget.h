@@ -56,10 +56,34 @@ private:
     QPointF draggingStartPosition;
     std::vector<QPoint> possibleMoves;
 
-    bool hasKingBeenMoved;
-    bool isKingChecked;
-    bool hasLeftRookBeenMoved;
-    bool hasRightRookBeenMoved;
+
+    struct CastlingFlags
+    {
+        CastlingFlags(): hasKingBeenMoved(false),hasLeftRookBeenMoved(false), hasRightRookBeenMoved(false) {}
+
+        bool hasKingBeenMoved;
+        bool hasLeftRookBeenMoved;
+        bool hasRightRookBeenMoved;
+
+        bool isShortCastlingPossible()
+        {
+            return (!hasKingBeenMoved && !hasRightRookBeenMoved);
+        }
+
+        bool isLongCastlingPossible()
+        {
+            return (!hasKingBeenMoved && !hasLeftRookBeenMoved);
+        }
+
+    };
+
+    CastlingFlags whiteFlags;
+    CastlingFlags blackFlags;
+
+    bool isShortCastlingPossible();
+    bool isLongCastlingPossible();
+
+
 };
 
 #endif // CHESSGAMEWIDGET_H

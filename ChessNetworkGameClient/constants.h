@@ -13,7 +13,7 @@ const QColor DARK_FIELD_COLOR(20, 160, 20, 255);
 const QColor POSSIBLE_MOVE_FIELD_COLOR(255, 200, 100, 255);
 
 enum class FigureType {
-    Pawn, Knight, Bishop, Rook, Queen, King
+    Pawn, Knight, Bishop, LeftRook, RightRook, Queen, King
 };
 
 enum PlayerColor {
