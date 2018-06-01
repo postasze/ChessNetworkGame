@@ -42,6 +42,7 @@ private:
     void promotePawn(Figure* promotedOne);
     void createPossibleMoveSquares(const std::vector<QPoint>& possibleMoves);
     void deletePossibleMoveSquares();
+    void generateForbiddenKingMoves(std::vector<QPoint> possibleMoves);
 
     QPixmap blackPawnPixmap, blackKnightPixmap, blackBishopPixmap, blackRookPixmap, blackQueenPixmap, blackKingPixmap;
     QPixmap whitePawnPixmap, whiteKnightPixmap, whiteBishopPixmap, whiteRookPixmap, whiteQueenPixmap, whiteKingPixmap;
@@ -55,6 +56,7 @@ private:
     Figure *draggedFigure;
     QPointF draggingStartPosition;
     std::vector<QPoint> possibleMoves;
+    std::vector<QPoint> forbiddenKingMoves;
 
 
     struct CastlingFlags

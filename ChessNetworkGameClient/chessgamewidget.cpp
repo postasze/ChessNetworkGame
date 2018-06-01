@@ -146,7 +146,7 @@ void ChessGameWidget::mouseReleaseEvent(QMouseEvent *event)
             QPointF scenePosition = boardCoordinatesToPixelCoordinates(boardPoint);
             QPoint draggingStartPoint = pixelCoordinatesToBoardCoordinates(draggingStartPosition);
 
-           /* if ((board[boardPoint.x()][boardPoint.y()])->figureType == FigureType::LeftRook)// short castling
+            if (board[boardPoint.x()][boardPoint.y()] != nullptr &&(board[boardPoint.x()][boardPoint.y()])->figureType == FigureType::LeftRook)// short castling
             {
                  QPoint newRookPoint = boardPoint - QPoint(2,0);
                  QPoint newKingPoint = boardPoint - QPoint(1,0);
@@ -161,8 +161,8 @@ void ChessGameWidget::mouseReleaseEvent(QMouseEvent *event)
                  board[boardPoint.x()][boardPoint.y()] = nullptr;
 //
             }
-/*
-            else if (board[boardPoint.x()][boardPoint.y()]->figureType != FigureType::LeftRook)//long castling
+
+            else if (board[boardPoint.x()][boardPoint.y()] != nullptr && board[boardPoint.x()][boardPoint.y()]->figureType != FigureType::LeftRook)//long castling
             {
                  QPoint newRookPoint = boardPoint + QPoint(3,0);
                  QPoint newKingPoint = boardPoint + QPoint(2,0);
@@ -178,14 +178,15 @@ void ChessGameWidget::mouseReleaseEvent(QMouseEvent *event)
             }
 
 
-          else*/
+          else
+            {
 
                 board[draggingStartPoint.x()][draggingStartPoint.y()] = nullptr;
                 delete board[boardPoint.x()][boardPoint.y()]; // removal of opponent figure if there is any on this square
                 board[boardPoint.x()][boardPoint.y()] = draggedFigure;
                 draggedFigure->setPos(scenePosition);
 
-
+            }
 
             //promote pawn, if reached end of the board
             if (draggedFigure->figureType == FigureType::Pawn && (scenePosition.y() == 7*SQUARE_SIZE || scenePosition.y() == 0))
@@ -387,6 +388,8 @@ void ChessGameWidget::kingPossibleMoves(Figure *figure, std::vector<QPoint>& pos
             board[boardPoint.x()-1][boardPoint.y()+1]->figureColor == getOpponentColor(currentPlayerColor))
             possibleMoves.push_back(QPoint(boardPoint.x()-1, boardPoint.y()+1));
 
+    //generateForbiddenKingMoves(possibleMoves);
+
 
 
 
@@ -451,7 +454,7 @@ void ChessGameWidget::queenPossibleMoves(Figure *figure, std::vector<QPoint>& po
 }
 
 void ChessGameWidget::findPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves)
-{
+{              
     possibleMoves.clear();
 
     switch(figure->figureType)
@@ -560,3 +563,31 @@ bool ChessGameWidget::isLongCastlingPossible()
     return false;
 
 }
+void ChessGameWidget::generateForbiddenKingMoves(std::vector<QPoint> possibleMoves)
+{
+    std::vector<QPoint> forbiddenMoves;
+
+    if (currentPlayerColor = PlayerColor::White)
+    {
+        foreach(Figure* figure,blackFigures)
+        {
+            forbiddenMoves.push_back(QPoint(1,1));
+            findPossibleMoves(figure, forbiddenMoves);
+            foreach (auto point, possibleMoves)
+                if(std::find(forbiddenMoves.begin(), forbiddenMoves.end(), point) != forbiddenMoves.end())
+                    possibleMoves.erase(std::remove(possibleMoves.begin(), possibleMoves.end(), point), possibleMoves.end());
+        }
+    }
+
+    else
+    {
+        foreach(auto figure, whiteFigures)
+           findPossibleMoves(figure, forbiddenMoves);
+           foreach (auto point, possibleMoves)
+                if(std::find(forbiddenMoves.begin(), forbiddenMoves.end(), point) != forbiddenMoves.end())
+                    possibleMoves.erase(std::remove(possibleMoves.begin(), possibleMoves.end(), point), possibleMoves.end());
+    }
+
+}
+
+//bool ChessGameWidget::isKingChecked()
