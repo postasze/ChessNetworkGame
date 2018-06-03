@@ -20,6 +20,7 @@ public:
     ~MainWindow();
 
     Ui::MainWindow *ui;
+    void addNewChessTableLabelToListWidget(QString chessTableLabel);
     void openChessTableWindow(ChessTable* chessTableWidget);
     void closeChessTableWindow(ChessTable *chessTableWidget);
 

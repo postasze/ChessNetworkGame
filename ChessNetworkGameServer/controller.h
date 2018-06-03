@@ -16,8 +16,18 @@ public:
     void closeCommunication();
 
     void createNewClientHandler(int fullAssociatedSocketDescriptor);
-    void handleClientRequest(ClientHandler *clientHandler);
     void deleteClientHandler(ClientHandler *clientHandler);
+    void handleClientRequest(ClientHandler *clientHandler);
+    void handleNewClientCreationRequest(ClientHandler *clientHandler, std::string newUsername);
+    void handleNewChessTableCreationRequest(ClientHandler *clientHandler);
+    void handleJoinChessTableRequest(ClientHandler *clientHandler, int chosenChessTableId);
+    void handleBlackColorSeatChoiceRequest(ClientHandler *clientHandler, int chosenChessTableId);
+    void handleBlackColorSeatReleaseRequest(ClientHandler *clientHandler, int chosenChessTableId);
+    void handleWhiteColorSeatChoiceRequest(ClientHandler *clientHandler, int chosenChessTableId);
+    void handleWhiteColorSeatReleaseRequest(ClientHandler *clientHandler, int chosenChessTableId);
+    void handleStartGameRequest(ClientHandler *clientHandler, int chosenChessTableId);
+    void handleResignGameRequest(ClientHandler *clientHandler, int chosenChessTableId);
+    void handleUserMessageDeliveryRequest(ClientHandler *clientHandler, std::string message);
 
 private:
     Communicator communicator;

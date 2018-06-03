@@ -19,6 +19,7 @@ public:
 
     static void* listenToClient(void* arg);
     void writeReplyToClient(ClientHandler* clientHandler, std::string message);
+    void writeReplyToManyClients(std::vector<ClientHandler*>& clientHandlers, std::string message);
     void setController(Controller *controller);
 
 private:

@@ -103,8 +103,17 @@ void Communicator::writeReplyToClient(ClientHandler* clientHandler, std::string 
 {
     memset(clientHandler->outputBuffer, 0, BUFFER_SIZE);
     strcpy(clientHandler->outputBuffer, message.c_str());
-
     write(clientHandler->socketDescriptor, clientHandler->outputBuffer, BUFFER_SIZE);
+}
+
+void Communicator::writeReplyToManyClients(std::vector<ClientHandler*>& clientHandlers, std::string message)
+{
+    for(unsigned int i = 0; i < clientHandlers.size(); i++)
+    {
+        memset(clientHandlers[i]->outputBuffer, 0, BUFFER_SIZE);
+        strcpy(clientHandlers[i]->outputBuffer, message.c_str());
+        write(clientHandlers[i]->socketDescriptor, clientHandlers[i]->outputBuffer, BUFFER_SIZE);
+    }
 }
 
 void Communicator::closeCommunication()

@@ -35,7 +35,11 @@ void MainWindow::removeSubWindow()
 void MainWindow::openChessTableWindow(ChessTable *chessTableWidget)
 {
     loadSubWindow(chessTableWidget);
-    ui->chessTablesListWidget->addItem(chessTableWidget->windowTitle());
+}
+
+void MainWindow::addNewChessTableLabelToListWidget(QString chessTableLabel)
+{
+    ui->chessTablesListWidget->addItem(chessTableLabel);
 }
 
 void MainWindow::closeChessTableWindow(ChessTable *chessTableWidget)
