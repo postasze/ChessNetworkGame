@@ -4,6 +4,7 @@
 #include <vector>
 
 class ClientHandler;
+class ChessMatch;
 
 class ChessTable
 {
@@ -14,6 +15,7 @@ public:
     std::vector<ClientHandler*> clientsOnTable;
     ClientHandler *clientWithBlackFigures;
     ClientHandler *clientWithWhiteFigures;
+    ChessMatch chessMatch;
 
 private:
 
