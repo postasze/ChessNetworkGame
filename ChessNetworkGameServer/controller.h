@@ -16,7 +16,8 @@ public:
     void closeCommunication();
 
     void createNewClientHandler(int fullAssociatedSocketDescriptor);
-    void deleteClientHandler(ClientHandler *clientHandler);
+    void removeClientHandler(ClientHandler *clientHandler);
+    void removeClientFromAllTables(ClientHandler *clientHandler);
     void handleClientRequest(ClientHandler *clientHandler);
     void handleNewClientCreationRequest(ClientHandler *clientHandler, std::string newUsername);
     void handleNewChessTableCreationRequest(ClientHandler *clientHandler);

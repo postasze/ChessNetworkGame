@@ -23,7 +23,7 @@ private slots:
     void createChessTablePushButtonClicked();
     void selectedChessTable(const QString& chessTableTitle);
     void joinChessTablePushButtonClicked();
-    void deleteChessTable(QObject* qObject);
+    void removeChessTable(QObject* qObject);
     void createNewChessTable(int id);
     void handleReplyFromServer(QString messageFromServer);
     void chooseBlackColorSeatButtonClicked();

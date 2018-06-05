@@ -89,7 +89,7 @@ void* Communicator::listenToClient(void* arg)
         else if (returnValue == 0)
         {
             printf("Ending connection\n");
-            controller->deleteClientHandler(clientHandler);
+            controller->removeClientHandler(clientHandler);
         }
         else
             controller->handleClientRequest(clientHandler);

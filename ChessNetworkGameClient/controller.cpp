@@ -13,6 +13,8 @@ Controller::Controller(QObject *parent) : QObject(parent)
     connect(mainWindow.ui->chessTablesListWidget, SIGNAL(currentTextChanged(QString)), this, SLOT(selectedChessTable(QString)));
     connect(mainWindow.ui->joinChessTablePushButton, &QPushButton::clicked, this, &Controller::joinChessTablePushButtonClicked);
     connect(&communicator, SIGNAL(replyFromServer(QString)), this, SLOT(handleReplyFromServer(QString)));
+
+    currentlySelectedChessTableId = -1;
 }
 
 Controller::~Controller()
@@ -79,6 +81,9 @@ void Controller::joinChessTablePushButtonClicked()
     if(mainWindow.ui->chessTablesListWidget->count() == 0)
         return;
 
+    if(currentlySelectedChessTableId == -1)
+        return;
+
     communicator.sendMessageToServer("Join chess table with id: " + std::to_string(currentlySelectedChessTableId));
 }
 
@@ -87,7 +92,7 @@ void Controller::createNewChessTable(int id)
     chessTables.push_back(new ChessTable(&mainWindow, id));
     chessTables.back()->setWindowTitle(QString("Stół szachowy nr: ") + QString::number(id));
     mainWindow.openChessTableWindow(chessTables.back());
-    connect(chessTables.back(), SIGNAL(destroyed(QObject*)), this, SLOT(deleteChessTable(QObject*)));
+    connect(chessTables.back(), SIGNAL(destroyed(QObject*)), this, SLOT(removeChessTable(QObject*)));
     connect(chessTables.back()->ui->choseBlackColorSeatButton, &QPushButton::clicked, this, &Controller::chooseBlackColorSeatButtonClicked);
     connect(chessTables.back()->ui->freeBlackColorSeatButton, &QPushButton::clicked, this, &Controller::freeBlackColorSeatButtonClicked);
     connect(chessTables.back()->ui->choseWhiteColorSeatButton, &QPushButton::clicked, this, &Controller::chooseWhiteColorSeatButtonClicked);
@@ -97,12 +102,10 @@ void Controller::createNewChessTable(int id)
     connect(chessTables.back()->ui->sendMessageButton, &QPushButton::clicked, this, &Controller::sendMessageButtonClicked);
 }
 
-void Controller::deleteChessTable(QObject* qObject)
+void Controller::removeChessTable(QObject* qObject)
 {
     ChessTable* chessTable = (ChessTable*) qObject;
-    mainWindow.closeChessTableWindow(chessTable);
     chessTables.erase(std::find(chessTables.begin(), chessTables.end(), chessTable));
-    delete chessTable;
 }
 
 void Controller::chooseBlackColorSeatButtonClicked()
@@ -163,7 +166,7 @@ void Controller::sendMessageButtonClicked()
 {
     QPushButton *pressedButton = (QPushButton*) QObject::sender();
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
-        [pressedButton](ChessTable *chessTable) {return chessTable->ui->resignButton == pressedButton;});
+        [pressedButton](ChessTable *chessTable) {return chessTable->ui->sendMessageButton == pressedButton;});
 
     if(chosenChessTable->ui->messageLineEdit->text() == "")
         return;

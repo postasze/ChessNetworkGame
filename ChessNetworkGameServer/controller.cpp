@@ -30,10 +30,27 @@ void Controller::createNewClientHandler(int fullAssociatedSocketDescriptor)
     pthread_create(&clientHandlers.back()->pthreadId, NULL, &communicator.listenToClient, (void*) clientHandlers.back());
 }
 
-void Controller::deleteClientHandler(ClientHandler *clientHandler)
+void Controller::removeClientHandler(ClientHandler *clientHandler)
 {
+    removeClientFromAllTables(clientHandler);
     clientHandlers.erase(std::find(clientHandlers.begin(), clientHandlers.end(), clientHandler));
     delete clientHandler;
+}
+
+void Controller::removeClientFromAllTables(ClientHandler *clientHandler)
+{
+    std::vector<ClientHandler*>::iterator clientPosition;
+    for(unsigned int i = 0; i < chessTables.size(); i++)
+    {
+        if((clientPosition = std::find(chessTables[i]->clientsOnTable.begin(), chessTables[i]->clientsOnTable.end(), clientHandler)) != chessTables[i]->clientsOnTable.end())
+        {
+        chessTables[i]->clientsOnTable.erase(clientPosition);
+        if(chessTables[i]->clientWithBlackFigures == clientHandler)
+            chessTables[i]->clientWithBlackFigures = nullptr;
+        if(chessTables[i]->clientWithWhiteFigures == clientHandler)
+            chessTables[i]->clientWithWhiteFigures = nullptr;
+        }
+    }
 }
 
 void Controller::handleClientRequest(ClientHandler *clientHandler)
@@ -82,6 +99,7 @@ void Controller::handleNewChessTableCreationRequest(ClientHandler *clientHandler
     chessTables.push_back(new ChessTable(currentChessTableID));
     chessTables.back()->clientsOnTable.push_back(clientHandler);
     communicator.writeReplyToManyClients(clientHandlers, "Chess table created with id = " + std::to_string(currentChessTableID));
+    communicator.writeReplyToClient(clientHandler, "Joined to chess table with id = " + std::to_string(currentChessTableID));
     currentChessTableID++;
 }
 
@@ -89,6 +107,9 @@ void Controller::handleJoinChessTableRequest(ClientHandler *clientHandler, int c
 {
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    if(std::find(chosenChessTable->clientsOnTable.begin(), chosenChessTable->clientsOnTable.end(), clientHandler) != chosenChessTable->clientsOnTable.end())
+        return; // client already joined
 
     chosenChessTable->clientsOnTable.push_back(clientHandler);
     communicator.writeReplyToClient(clientHandler, "Joined to chess table with id = " + std::to_string(chosenChessTableId));

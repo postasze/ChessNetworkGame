@@ -42,11 +42,11 @@ void MainWindow::addNewChessTableLabelToListWidget(QString chessTableLabel)
     ui->chessTablesListWidget->addItem(chessTableLabel);
 }
 
-void MainWindow::closeChessTableWindow(ChessTable *chessTableWidget)
+void MainWindow::removeChessTableLabelFromListWidget(int chessTableId)
 {
     for(int i = 0; i < ui->chessTablesListWidget->count(); ++i)
     {
-        if (ui->chessTablesListWidget->item(i)->text() == QString("Stół szachowy nr: ") + QString::number(chessTableWidget->chessTableId))
+        if (ui->chessTablesListWidget->item(i)->text() == QString("Stół szachowy nr: ") + QString::number(chessTableId))
             ui->chessTablesListWidget->takeItem(i);
     }
 }

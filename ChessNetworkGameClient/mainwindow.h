@@ -22,7 +22,7 @@ public:
     Ui::MainWindow *ui;
     void addNewChessTableLabelToListWidget(QString chessTableLabel);
     void openChessTableWindow(ChessTable* chessTableWidget);
-    void closeChessTableWindow(ChessTable *chessTableWidget);
+    void removeChessTableLabelFromListWidget(int chessTableId);
 
 private slots:
     void activateSubWindow(QMdiSubWindow* qMdiSubWindow);
