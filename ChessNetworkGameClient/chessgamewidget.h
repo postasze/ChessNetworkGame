@@ -31,9 +31,9 @@ private:
     PlayerColor getOpponentColor(PlayerColor playerColor);
     QPoint pixelCoordinatesToBoardCoordinates(QPointF pixelCoordinates);
     QPointF boardCoordinatesToPixelCoordinates(QPoint boardCoordinates);
-    void findPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves);
+    void findPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves, bool toEliminate = false);
     void addAllPossibleMovesInDirection(Figure *figure, std::vector<QPoint>& possibleMoves, int h, int v);
-    void pawnPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves);
+    void pawnPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves, bool toEliminate = false);
     void knightPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves);
     void bishopPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves);
     void rookPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves);

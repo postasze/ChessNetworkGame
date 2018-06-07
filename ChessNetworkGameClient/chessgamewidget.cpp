@@ -141,8 +141,6 @@ void ChessGameWidget::mouseReleaseEvent(QMouseEvent *event)
 
         else // situation when move is valid
         {
-           // if (board[boardPoint.x()][boardPoint.y()]->figureType != FigureType::RightRook)
-                //std::cout<<'a';
             QPointF scenePosition = boardCoordinatesToPixelCoordinates(boardPoint);
             QPoint draggingStartPoint = pixelCoordinatesToBoardCoordinates(draggingStartPosition);
 
@@ -237,7 +235,7 @@ void ChessGameWidget::mouseMoveEvent(QMouseEvent *event)
         draggedFigure->setPos(event->pos() -= QPoint(SQUARE_SIZE / 2, SQUARE_SIZE / 2));
 }
 
-void ChessGameWidget::pawnPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves)
+void ChessGameWidget::pawnPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves, bool toEliminate)
 {
     QPoint boardPoint = pixelCoordinatesToBoardCoordinates(figure->pos()); // position of figure on the board
 
@@ -246,12 +244,14 @@ void ChessGameWidget::pawnPossibleMoves(Figure *figure, std::vector<QPoint>& pos
     case PlayerColor::Black:
         if(boardPoint.y() == 0) // end of board for pawn
             return; // returning empty possible moves
+        if (toEliminate == false)
+        {
+            if(board[boardPoint.x()][boardPoint.y()-1] == nullptr)
+                possibleMoves.push_back(QPoint(boardPoint.x(), boardPoint.y()-1));
 
-        if(board[boardPoint.x()][boardPoint.y()-1] == nullptr)
-            possibleMoves.push_back(QPoint(boardPoint.x(), boardPoint.y()-1));
+            if(boardPoint.y() == 6 && board[boardPoint.x()][5] == nullptr && board[boardPoint.x()][4] == nullptr)
+                possibleMoves.push_back(QPoint(boardPoint.x(), 4));
 
-        if(boardPoint.y() == 6 && board[boardPoint.x()][5] == nullptr && board[boardPoint.x()][4] == nullptr)
-            possibleMoves.push_back(QPoint(boardPoint.x(), 4));
 
         if(boardPoint.x() > 0 && boardPoint.y() > 0)
             if(board[boardPoint.x()-1][boardPoint.y()-1] != nullptr)
@@ -262,16 +262,27 @@ void ChessGameWidget::pawnPossibleMoves(Figure *figure, std::vector<QPoint>& pos
             if(board[boardPoint.x()+1][boardPoint.y()-1] != nullptr)
                 if(board[boardPoint.x()+1][boardPoint.y()-1]->figureColor == getOpponentColor(currentPlayerColor))
                     possibleMoves.push_back(QPoint(boardPoint.x()+1, boardPoint.y()-1));
+        }
+        else
+        {
+            if(boardPoint.x() > 0 && boardPoint.y() > 0)
+                possibleMoves.push_back(QPoint(boardPoint.x()-1, boardPoint.y()-1));
+            if(boardPoint.x() < 7 && boardPoint.y() > 0)
+                 possibleMoves.push_back(QPoint(boardPoint.x()+1, boardPoint.y()-1));
+        }
+
         break;
     case PlayerColor::White:
         if(boardPoint.y() == 7) // end of board for pawn
             return; // returning empty possible moves
 
-        if(board[boardPoint.x()][boardPoint.y()+1] == nullptr)
-            possibleMoves.push_back(QPoint(boardPoint.x(), boardPoint.y()+1));
+        if(toEliminate == false)
+        {
+            if(board[boardPoint.x()][boardPoint.y()+1] == nullptr)
+                possibleMoves.push_back(QPoint(boardPoint.x(), boardPoint.y()+1));
 
-        if(boardPoint.y() == 1 && board[boardPoint.x()][2] == nullptr && board[boardPoint.x()][3] == nullptr)
-            possibleMoves.push_back(QPoint(boardPoint.x(), 3));
+            if(boardPoint.y() == 1 && board[boardPoint.x()][2] == nullptr && board[boardPoint.x()][3] == nullptr)
+                possibleMoves.push_back(QPoint(boardPoint.x(), 3));
 
         if(boardPoint.x() > 0 && boardPoint.y() < 7)
             if(board[boardPoint.x()-1][boardPoint.y()+1] != nullptr)
@@ -282,6 +293,14 @@ void ChessGameWidget::pawnPossibleMoves(Figure *figure, std::vector<QPoint>& pos
             if(board[boardPoint.x()+1][boardPoint.y()+1] != nullptr)
                 if(board[boardPoint.x()+1][boardPoint.y()+1]->figureColor == getOpponentColor(currentPlayerColor))
                     possibleMoves.push_back(QPoint(boardPoint.x()+1, boardPoint.y()+1));
+        }
+        else
+        {
+             if(boardPoint.x() > 0 && boardPoint.y() < 7)
+                 possibleMoves.push_back(QPoint(boardPoint.x()-1, boardPoint.y()+1));
+              if(boardPoint.x() < 7 && boardPoint.y() < 7)
+                 possibleMoves.push_back(QPoint(boardPoint.x()+1, boardPoint.y()+1));
+        }
         break;
     }
 }
@@ -443,14 +462,14 @@ void ChessGameWidget::queenPossibleMoves(Figure *figure, std::vector<QPoint>& po
     addAllPossibleMovesInDirection(figure, possibleMoves, -1, 1); // up left
 }
 
-void ChessGameWidget::findPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves)
+void ChessGameWidget::findPossibleMoves(Figure *figure, std::vector<QPoint>& possibleMoves, bool toEliminate)
 {              
     possibleMoves.clear();
 
     switch(figure->figureType)
     {
     case FigureType::Pawn:
-        pawnPossibleMoves(figure, possibleMoves);
+        pawnPossibleMoves(figure, possibleMoves, toEliminate);
         break;
     case FigureType::Knight:
         knightPossibleMoves(figure, possibleMoves);
@@ -560,9 +579,11 @@ void ChessGameWidget::eraseForbiddenKingMoves(std::vector<QPoint>& possibleMoves
     if (currentPlayerColor == PlayerColor::White)
     {
         foreach(Figure* figure, blackFigures)
-        {
-            //forbiddenMoves.push_back(QPoint(1,1));
-            findPossibleMoves(figure, forbiddenMoves);
+        {   if (figure->figureType == FigureType::Pawn)
+                findPossibleMoves(figure, forbiddenMoves, true);
+            else
+                findPossibleMoves(figure, forbiddenMoves);
+
             foreach (QPoint point, possibleMoves)
                 if(std::find(forbiddenMoves.begin(), forbiddenMoves.end(), point) != forbiddenMoves.end())
                     possibleMoves.erase(std::remove(possibleMoves.begin(), possibleMoves.end(), point), possibleMoves.end());
@@ -572,8 +593,12 @@ void ChessGameWidget::eraseForbiddenKingMoves(std::vector<QPoint>& possibleMoves
     {
         foreach(Figure* figure, whiteFigures)
         {
-           findPossibleMoves(figure, forbiddenMoves);
-           foreach (QPoint point, possibleMoves)
+            if (figure->figureType == FigureType::Pawn)
+                findPossibleMoves(figure, forbiddenMoves, true);
+            else
+                findPossibleMoves(figure, forbiddenMoves);
+
+            foreach (QPoint point, possibleMoves)
                 if(std::find(forbiddenMoves.begin(), forbiddenMoves.end(), point) != forbiddenMoves.end())
                     possibleMoves.erase(std::remove(possibleMoves.begin(), possibleMoves.end(), point), possibleMoves.end());
         }

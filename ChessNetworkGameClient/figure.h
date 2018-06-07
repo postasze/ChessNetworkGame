@@ -17,4 +17,5 @@ private:
 
 };
 
+
 #endif // FIGURE_H
