@@ -29,8 +29,12 @@ public:
     void handleStartGameRequest(ClientHandler *clientHandler, int chosenChessTableId);
     void handleResignGameRequest(ClientHandler *clientHandler, int chosenChessTableId);
     void handleUserMessageDeliveryRequest(ClientHandler *clientHandler, std::string message);
+    void handleUserFigurePressRequest(ClientHandler *clientHandler, std::string message);
+    void handleUserFigureMoveRequest(ClientHandler *clientHandler, std::string message);
 
 private:
+    std::string createReplyContainingPossibleMoves(int chosenChessTableId, std::vector<std::pair<int, int>>& possibleMoves);
+
     Communicator communicator;
     std::vector<ClientHandler*> clientHandlers;
     std::vector<ChessTable*> chessTables;

@@ -16,10 +16,13 @@ ChessGameWidget::ChessGameWidget(QWidget *parent) : QWidget(parent)
     chessScene.addItem(&chessBoardPixmapItem);
 
     loadFigureImages();
+    createFigures();
     addFigureImagesToScene();
 
     draggedFigure = nullptr;
     currentPlayerColor = PlayerColor::White;
+    playerColor = PlayerColor::None;
+    inGame = false;
 }
 
 ChessGameWidget::~ChessGameWidget()
@@ -86,14 +89,25 @@ void ChessGameWidget::addFigureImagesToScene()
 
 void ChessGameWidget::mousePressEvent(QMouseEvent *event)
 {
-    std::cout << "mousePressEvent" << std::endl;
+    //std::cout << "mousePressEvent" << std::endl;
 
+    if(!inGame)
+        return;
+
+    if(currentPlayerColor != playerColor)
+        return;
+
+    if(draggedFigure != nullptr)
+        return;
+
+    QPoint boardPoint = pixelCoordinatesToBoardCoordinates(event->pos());
     draggedFigure = dynamic_cast<Figure*>(chessScene.itemAt(event->pos(), QTransform()));
 
     if(draggedFigure != nullptr && draggedFigure->figureColor == currentPlayerColor)
     {
-        findPossibleMoves(draggedFigure, possibleMoves);
-        createPossibleMoveSquares(possibleMoves);
+        emit playerFigurePressed(boardPoint);
+        //findPossibleMoves(draggedFigure, possibleMoves);
+        //createPossibleMoveSquares(possibleMoves);
         draggingStartPosition = draggedFigure->pos();
     }
     else
@@ -102,112 +116,38 @@ void ChessGameWidget::mousePressEvent(QMouseEvent *event)
 
 void ChessGameWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    std::cout << "mouseReleaseEvent" << pixelCoordinatesToBoardCoordinates(event->pos()).x()<<pixelCoordinatesToBoardCoordinates(event->pos()).y()<< std::endl;
+    //std::cout << "mouseReleaseEvent" << pixelCoordinatesToBoardCoordinates(event->pos()).x()<<pixelCoordinatesToBoardCoordinates(event->pos()).y()<< std::endl;
+
+    if(!inGame)
+        return;
+
+    if(currentPlayerColor != playerColor)
+        return;
 
     if(draggedFigure != nullptr)
     {
         QPoint boardPoint = pixelCoordinatesToBoardCoordinates(event->pos());
 
-         if((std::find(possibleMoves.begin(), possibleMoves.end(), boardPoint) == possibleMoves.end()) ||
-                 (board[boardPoint.x()][boardPoint.y()] != nullptr && ( board[boardPoint.x()][boardPoint.y()]->figureColor == currentPlayerColor
-                   && board[boardPoint.x()][boardPoint.y()]->figureType != FigureType::LeftRook &&
-                   board[boardPoint.x()][boardPoint.y()]->figureType != FigureType::RightRook)))
-             draggedFigure->setPos(draggingStartPosition); // situation when move is invalid
-
-
-        else // situation when move is valid
+        if(std::find(possibleMoves.begin(), possibleMoves.end(), boardPoint) == possibleMoves.end())
         {
-           // if (board[boardPoint.x()][boardPoint.y()]->figureType != FigureType::RightRook)
-                //std::cout<<'a';
-            QPointF scenePosition = boardCoordinatesToPixelCoordinates(boardPoint);
-            QPoint draggingStartPoint = pixelCoordinatesToBoardCoordinates(draggingStartPosition);
-
-            if (board[boardPoint.x()][boardPoint.y()] != nullptr &&(board[boardPoint.x()][boardPoint.y()])->figureType == FigureType::RightRook)// short castling
-            {
-                 QPoint newRookPoint = boardPoint - QPoint(2,0);
-                 QPoint newKingPoint = boardPoint - QPoint(1,0);
-                 QPointF newKingPosition = boardCoordinatesToPixelCoordinates(newKingPoint);
-                 QPointF newRookPosition = boardCoordinatesToPixelCoordinates(newRookPoint);
-
-                 board[draggingStartPoint.x()][draggingStartPoint.y()] = nullptr;
-                 board[newKingPoint.x()][newKingPoint.y()] = draggedFigure;
-                 draggedFigure->setPos(newKingPosition);
-                 board[newRookPoint.x()][newRookPoint.y()] = board[boardPoint.x()][boardPoint.y()];
-                 board[newRookPoint.x()][newRookPoint.y()]->setPos(newRookPosition);
-                 board[boardPoint.x()][boardPoint.y()] = nullptr;
-            }
-            else if (board[boardPoint.x()][boardPoint.y()] != nullptr && board[boardPoint.x()][boardPoint.y()]->figureType == FigureType::LeftRook)//long castling
-            {
-                 QPoint newRookPoint = boardPoint + QPoint(3,0);
-                 QPoint newKingPoint = boardPoint + QPoint(2,0);
-                 QPointF newKingPosition = boardCoordinatesToPixelCoordinates(newKingPoint);
-                 QPointF newRookPosition = boardCoordinatesToPixelCoordinates(newRookPoint);
-
-                 board[draggingStartPoint.x()][draggingStartPoint.y()] = nullptr;
-                 board[newKingPoint.x()][newKingPoint.y()] = draggedFigure;
-                 draggedFigure->setPos(newKingPosition);
-                 board[newRookPoint.x()][newRookPoint.y()] = board[boardPoint.x()][boardPoint.y()];
-                 board[newRookPoint.x()][newRookPoint.y()]->setPos(newRookPosition);
-                 board[boardPoint.x()][boardPoint.y()] = nullptr;
-            }
-            else
-            {
-                board[draggingStartPoint.x()][draggingStartPoint.y()] = nullptr;
-                delete board[boardPoint.x()][boardPoint.y()]; // removal of opponent figure if there is any on this square
-                board[boardPoint.x()][boardPoint.y()] = draggedFigure;
-                draggedFigure->setPos(scenePosition);
-            }
-
-            //promote pawn, if reached end of the board
-            if (draggedFigure->figureType == FigureType::Pawn && (scenePosition.y() == 7*SQUARE_SIZE || scenePosition.y() == 0))
-                promotePawn(draggedFigure);
-
-            // set flages, so that castling won't be possible anymore
-            if(currentPlayerColor == PlayerColor::White)
-            {
-                switch (draggedFigure->figureType) {
-                case FigureType::King:
-                    whiteFlags.hasKingBeenMoved = true;
-                    break;
-                case FigureType::LeftRook:
-                    whiteFlags.hasLeftRookBeenMoved = true;
-                    break;
-                case FigureType::RightRook:
-                    whiteFlags.hasRightRookBeenMoved = true;
-                    break;
-                default:
-                    break;
-                }
-            }
-
-            else if(currentPlayerColor == PlayerColor::Black)
-            {
-                switch (draggedFigure->figureType) {
-
-                case FigureType::King:
-                    blackFlags.hasKingBeenMoved = true;
-                    break;
-                case FigureType::LeftRook:
-                    blackFlags.hasLeftRookBeenMoved = true;
-                    break;
-                case FigureType::RightRook:
-                    blackFlags.hasRightRookBeenMoved = true;
-                    break;
-                default:
-                    break;
-                }
-            }
-            currentPlayerColor = getOpponentColor(currentPlayerColor);
+            deletePossibleMoveSquares();
+            draggedFigure->setPos(draggingStartPosition); // situation when move is invalid
+            draggedFigure = nullptr;
         }
-        deletePossibleMoveSquares();
-        draggedFigure = nullptr;
-
+        else // situation when move is valid
+            emit playerHasMoved(boardPoint);
     }
 }
 
 void ChessGameWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    std::cout << "mouseMoveEvent" << std::endl;
+    //std::cout << "mouseMoveEvent" << std::endl;
+
+    if(!inGame)
+        return;
+
+    if(currentPlayerColor != playerColor)
+        return;
 
     if(draggedFigure != nullptr)
         draggedFigure->setPos(event->pos() -= QPoint(SQUARE_SIZE / 2, SQUARE_SIZE / 2));
@@ -225,7 +165,16 @@ QPointF ChessGameWidget::boardCoordinatesToPixelCoordinates(QPoint boardCoordina
 
 PlayerColor ChessGameWidget::getOpponentColor(PlayerColor playerColor)
 {
-    return (PlayerColor) (1 - playerColor);
+    switch(playerColor)
+    {
+    case PlayerColor::Black:
+        return PlayerColor::White;
+        break;
+    case PlayerColor::White:
+        return PlayerColor::Black;
+        break;
+    }
+    return PlayerColor::None;
 }
 
 void ChessGameWidget::createPossibleMoveSquares(const std::vector<QPoint>& possibleMoves)
@@ -253,4 +202,110 @@ void ChessGameWidget::promotePawn(Figure* promotedOne)
     promotedOne->figureType = FigureType::Queen;
     QPixmap newPixmap = promotedOne->figureColor == PlayerColor::Black ? blackQueenPixmap : whiteQueenPixmap;
     promotedOne->setPixmap(newPixmap);
+}
+
+void ChessGameWidget::makeMove(QPoint startPoint, QPoint destinationPoint)
+{
+    QPointF destinationScenePosition = boardCoordinatesToPixelCoordinates(destinationPoint);
+    Figure *selectedFigure, *figureAtDestination;
+
+    if(draggedFigure != nullptr)
+        selectedFigure = draggedFigure;
+    else
+        selectedFigure = getPlayerFigureWithCoordinates(currentPlayerColor, startPoint);
+
+    figureAtDestination = getPlayerFigureWithCoordinates(currentPlayerColor, destinationPoint);
+
+    if(figureAtDestination != nullptr && figureAtDestination->figureType == FigureType::RightRook) // short castling
+    {
+        QPoint newRookPoint = destinationPoint - QPoint(0, 2);
+        QPoint newKingPoint = destinationPoint - QPoint(0, 1);
+
+        selectedFigure->setPos(boardCoordinatesToPixelCoordinates(newKingPoint));
+        figureAtDestination->setPos(boardCoordinatesToPixelCoordinates(newRookPoint));
+    }
+    else if(figureAtDestination != nullptr && figureAtDestination->figureType == FigureType::RightRook) // long castling
+    {
+        QPoint newRookPoint = destinationPoint + QPoint(0, 3);
+        QPoint newKingPoint = destinationPoint + QPoint(0, 2);
+
+        selectedFigure->setPos(boardCoordinatesToPixelCoordinates(newKingPoint));
+        figureAtDestination->setPos(boardCoordinatesToPixelCoordinates(newRookPoint));
+    }
+    else
+    {
+        figureAtDestination = getPlayerFigureWithCoordinates(getOpponentColor(currentPlayerColor), destinationPoint);
+        if(figureAtDestination != nullptr)
+            removeFigure(figureAtDestination);
+
+        selectedFigure->setPos(destinationScenePosition);
+    }
+
+    //promote pawn, if reached end of the board
+    if (selectedFigure->figureType == FigureType::Pawn && (destinationPoint.x() == 7 || destinationPoint.y() == 0))
+        promotePawn(selectedFigure);
+
+    currentPlayerColor = getOpponentColor(currentPlayerColor);
+    deletePossibleMoveSquares();
+    draggedFigure = nullptr;
+}
+
+Figure* ChessGameWidget::getFigureWithCoordinates(QPoint figurePosition)
+{
+    QPointF figureScenePosition = boardCoordinatesToPixelCoordinates(figurePosition);
+    std::vector<Figure*>::iterator figureIterator;
+
+    figureIterator = std::find_if(blackFigures.begin(), blackFigures.end(),
+        [figureScenePosition](Figure *figure) {return figure->pos() == figureScenePosition;});
+    if(figureIterator != blackFigures.end())
+        return *figureIterator;
+    figureIterator = std::find_if(whiteFigures.begin(), whiteFigures.end(),
+        [figureScenePosition](Figure *figure) {return figure->pos() == figureScenePosition;});
+    if(figureIterator != whiteFigures.end())
+        return *figureIterator;
+
+    return nullptr;
+}
+
+Figure* ChessGameWidget::getPlayerFigureWithCoordinates(PlayerColor playerColor, QPoint figurePosition)
+{
+    QPointF figureScenePosition = boardCoordinatesToPixelCoordinates(figurePosition);
+    std::vector<Figure*>::iterator figureIterator;
+
+    switch(playerColor)
+    {
+    case PlayerColor::Black:
+        figureIterator = std::find_if(blackFigures.begin(), blackFigures.end(),
+            [figureScenePosition](Figure *figure) {return figure->pos() == figureScenePosition;});
+        if(figureIterator != blackFigures.end())
+            return *figureIterator;
+        else
+            return nullptr;
+        break;
+    case PlayerColor::White:
+        figureIterator = std::find_if(whiteFigures.begin(), whiteFigures.end(),
+            [figureScenePosition](Figure *figure) {return figure->pos() == figureScenePosition;});
+        if(figureIterator != whiteFigures.end())
+            return *figureIterator;
+        else
+            return nullptr;
+        break;
+    }
+    return nullptr;
+}
+
+void ChessGameWidget::removeFigure(Figure *figure)
+{
+    chessScene.removeItem(figure);
+
+    switch(figure->figureColor)
+    {
+    case PlayerColor::Black:
+        blackFigures.erase(std::find(blackFigures.begin(), blackFigures.end(), figure));
+        break;
+    case PlayerColor::White:
+        whiteFigures.erase(std::find(whiteFigures.begin(), whiteFigures.end(), figure));
+        break;
+    }
+    delete figure;
 }

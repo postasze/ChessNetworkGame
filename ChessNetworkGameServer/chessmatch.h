@@ -10,8 +10,14 @@ class ChessMatch
 public:
     ChessMatch();
 
+    std::vector<std::pair<int, int>> getPossibleMovesForFigureOnPosition(int x, int y);
+    std::pair<int, int> makePlayerMove(std::pair<int, int> destinationPoint);
+    bool blackPlayerReady, whitePlayerReady;
+
 private:
     void createFigures();
+    void createBlackFigures();
+    void createWhiteFigures();
     void createBoard();
 
     void findPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves);
@@ -25,11 +31,13 @@ private:
     void eraseForbiddenKingMoves(std::vector<std::pair<int, int>>& possibleMoves);
     void promotePawn(Figure* promotedOne);
     PlayerColor getOpponentColor(PlayerColor playerColor);
+    void removeFigureOnSquare(std::pair<int, int> boardPoint);
 
     Figure* board[NUMBER_OF_SQUARES][NUMBER_OF_SQUARES];
     std::vector<Figure*> blackFigures, whiteFigures;
     PlayerColor currentPlayerColor;
     std::vector<std::pair<int, int>> possibleMoves;
+    Figure *selectedFigure;
 
     struct CastlingFlags
     {

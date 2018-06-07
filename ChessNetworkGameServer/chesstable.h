@@ -2,9 +2,9 @@
 #define CHESSTABLE_H
 
 #include <vector>
+#include "chessmatch.h"
 
 class ClientHandler;
-class ChessMatch;
 
 class ChessTable
 {

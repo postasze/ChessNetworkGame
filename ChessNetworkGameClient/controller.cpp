@@ -93,13 +93,15 @@ void Controller::createNewChessTable(int id)
     chessTables.back()->setWindowTitle(QString("Stół szachowy nr: ") + QString::number(id));
     mainWindow.openChessTableWindow(chessTables.back());
     connect(chessTables.back(), SIGNAL(destroyed(QObject*)), this, SLOT(removeChessTable(QObject*)));
-    connect(chessTables.back()->ui->choseBlackColorSeatButton, &QPushButton::clicked, this, &Controller::chooseBlackColorSeatButtonClicked);
-    connect(chessTables.back()->ui->freeBlackColorSeatButton, &QPushButton::clicked, this, &Controller::freeBlackColorSeatButtonClicked);
-    connect(chessTables.back()->ui->choseWhiteColorSeatButton, &QPushButton::clicked, this, &Controller::chooseWhiteColorSeatButtonClicked);
-    connect(chessTables.back()->ui->freeWhiteColorSeatButton, &QPushButton::clicked, this, &Controller::freeWhiteColorSeatButtonClicked);
-    connect(chessTables.back()->ui->startButton, &QPushButton::clicked, this, &Controller::startButtonClicked);
-    connect(chessTables.back()->ui->resignButton, &QPushButton::clicked, this, &Controller::resignButtonClicked);
-    connect(chessTables.back()->ui->sendMessageButton, &QPushButton::clicked, this, &Controller::sendMessageButtonClicked);
+    connect(chessTables.back()->ui->choseBlackColorSeatButton, &QPushButton::clicked, this, &Controller::chooseBlackColorSeatButtonClickedOnTable);
+    connect(chessTables.back()->ui->freeBlackColorSeatButton, &QPushButton::clicked, this, &Controller::freeBlackColorSeatButtonClickedOnTable);
+    connect(chessTables.back()->ui->choseWhiteColorSeatButton, &QPushButton::clicked, this, &Controller::chooseWhiteColorSeatButtonClickedOnTable);
+    connect(chessTables.back()->ui->freeWhiteColorSeatButton, &QPushButton::clicked, this, &Controller::freeWhiteColorSeatButtonClickedOnTable);
+    connect(chessTables.back()->ui->startButton, &QPushButton::clicked, this, &Controller::startButtonClickedOnTable);
+    connect(chessTables.back()->ui->resignButton, &QPushButton::clicked, this, &Controller::resignButtonClickedOnTable);
+    connect(chessTables.back()->ui->sendMessageButton, &QPushButton::clicked, this, &Controller::sendMessageButtonClickedOnTable);
+    connect(chessTables.back()->ui->chessGameWidget, SIGNAL(playerFigurePressed(QPoint)), this, SLOT(playerFigurePressedOnTable(QPoint)));
+    connect(chessTables.back()->ui->chessGameWidget, SIGNAL(playerHasMoved(QPoint)), this, SLOT(playerHasMovedOnTable(QPoint)));
 }
 
 void Controller::removeChessTable(QObject* qObject)
@@ -108,7 +110,7 @@ void Controller::removeChessTable(QObject* qObject)
     chessTables.erase(std::find(chessTables.begin(), chessTables.end(), chessTable));
 }
 
-void Controller::chooseBlackColorSeatButtonClicked()
+void Controller::chooseBlackColorSeatButtonClickedOnTable()
 {
     QPushButton *pressedButton = (QPushButton*) QObject::sender();
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
@@ -117,7 +119,7 @@ void Controller::chooseBlackColorSeatButtonClicked()
     communicator.sendMessageToServer("Choose black color seat button clicked by client on table with id: " + std::to_string(chosenChessTable->chessTableId));
 }
 
-void Controller::freeBlackColorSeatButtonClicked()
+void Controller::freeBlackColorSeatButtonClickedOnTable()
 {
     QPushButton *pressedButton = (QPushButton*) QObject::sender();
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
@@ -126,7 +128,7 @@ void Controller::freeBlackColorSeatButtonClicked()
     communicator.sendMessageToServer("Free black color seat button clicked by client on table with id: " + std::to_string(chosenChessTable->chessTableId));
 }
 
-void Controller::chooseWhiteColorSeatButtonClicked()
+void Controller::chooseWhiteColorSeatButtonClickedOnTable()
 {
     QPushButton *pressedButton = (QPushButton*) QObject::sender();
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
@@ -135,7 +137,7 @@ void Controller::chooseWhiteColorSeatButtonClicked()
     communicator.sendMessageToServer("Choose white color seat button clicked by client on table with id: " + std::to_string(chosenChessTable->chessTableId));
 }
 
-void Controller::freeWhiteColorSeatButtonClicked()
+void Controller::freeWhiteColorSeatButtonClickedOnTable()
 {
     QPushButton *pressedButton = (QPushButton*) QObject::sender();
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
@@ -144,7 +146,7 @@ void Controller::freeWhiteColorSeatButtonClicked()
     communicator.sendMessageToServer("Free white color seat button clicked by client on table with id: " + std::to_string(chosenChessTable->chessTableId));
 }
 
-void Controller::startButtonClicked()
+void Controller::startButtonClickedOnTable()
 {
     QPushButton *pressedButton = (QPushButton*) QObject::sender();
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
@@ -153,7 +155,7 @@ void Controller::startButtonClicked()
     communicator.sendMessageToServer("Start button clicked by client on table with id: " + std::to_string(chosenChessTable->chessTableId));
 }
 
-void Controller::resignButtonClicked()
+void Controller::resignButtonClickedOnTable()
 {
     QPushButton *pressedButton = (QPushButton*) QObject::sender();
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
@@ -162,7 +164,7 @@ void Controller::resignButtonClicked()
     communicator.sendMessageToServer("Resign button clicked by client on table with id: " + std::to_string(chosenChessTable->chessTableId));
 }
 
-void Controller::sendMessageButtonClicked()
+void Controller::sendMessageButtonClickedOnTable()
 {
     QPushButton *pressedButton = (QPushButton*) QObject::sender();
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
@@ -172,6 +174,24 @@ void Controller::sendMessageButtonClicked()
         return;
 
     communicator.sendMessageToServer("User has sent message on chess table with id: " + std::to_string(chosenChessTable->chessTableId) + " " + chosenChessTable->ui->messageLineEdit->text().toStdString());
+}
+
+void Controller::playerFigurePressedOnTable(QPoint figurePosition)
+{
+    ChessGameWidget *chosenChessGame = (ChessGameWidget*) QObject::sender();
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessGame](ChessTable *chessTable) {return chessTable->ui->chessGameWidget == chosenChessGame;});
+
+    communicator.sendMessageToServer("User has pressed his figure on chess table with id: " + std::to_string(chosenChessTable->chessTableId) + " " + std::to_string(figurePosition.x()) + " " + std::to_string(figurePosition.y()));
+}
+
+void Controller::playerHasMovedOnTable(QPoint figurePosition)
+{
+    ChessGameWidget *chosenChessGame = (ChessGameWidget*) QObject::sender();
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessGame](ChessTable *chessTable) {return chessTable->ui->chessGameWidget == chosenChessGame;});
+
+    communicator.sendMessageToServer("User has moved his figure on chess table with id: " + std::to_string(chosenChessTable->chessTableId) + " " + std::to_string(figurePosition.x()) + " " + std::to_string(figurePosition.y()));
 }
 
 void Controller::handleReplyFromServer(QString messageFromServer)
@@ -196,6 +216,12 @@ void Controller::handleReplyFromServer(QString messageFromServer)
         handleWhiteSeatReleaseReplyFromServer(stoi(message.substr(64, std::string::npos)));
     else if(message.substr(0, 46) == "User has sent message on chess table with id: ")
         handleUserMessageDeliveryReplyFromServer(message.substr(46, std::string::npos));
+    else if(message.substr(0, 46) == "Possible moves points on chess table with id: ")
+        handleUserFigurePressReplyFromServer(message.substr(46, std::string::npos));
+    else if(message.substr(0, 50) == "User has moved his figure on chess table with id: ")
+        handleUserFigureMoveReplyFromServer(message.substr(50, std::string::npos));
+    else if(message.substr(0, 35) == "Game has started on table with id: ")
+        handleStartGameReplyFromServer(stoi(message.substr(35, std::string::npos)));
 }
 
 void Controller::handleUsernameExistsReplyFromServer()
@@ -229,6 +255,8 @@ void Controller::handleBlackSeatPlacementReplyFromServer(std::string message)
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
 
     chosenChessTable->ui->blackColorPlayerLabel->setText(QString::fromStdString(seatedUserName));
+    if(QString::fromStdString(seatedUserName) == this->userName)
+        chosenChessTable->ui->chessGameWidget->playerColor = PlayerColor::Black;
 }
 
 void Controller::handleBlackSeatReleaseReplyFromServer(int chosenChessTableId)
@@ -237,6 +265,8 @@ void Controller::handleBlackSeatReleaseReplyFromServer(int chosenChessTableId)
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
 
     chosenChessTable->ui->blackColorPlayerLabel->setText("");
+    if (chosenChessTable->ui->chessGameWidget->playerColor == PlayerColor::Black)
+        chosenChessTable->ui->chessGameWidget->playerColor = PlayerColor::None;
 }
 
 void Controller::handleWhiteSeatPlacementReplyFromServer(std::string message)
@@ -249,6 +279,8 @@ void Controller::handleWhiteSeatPlacementReplyFromServer(std::string message)
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
 
     chosenChessTable->ui->whiteColorPlayerLabel->setText(QString::fromStdString(seatedUserName));
+    if(QString::fromStdString(seatedUserName) == this->userName)
+        chosenChessTable->ui->chessGameWidget->playerColor = PlayerColor::White;
 }
 
 void Controller::handleWhiteSeatReleaseReplyFromServer(int chosenChessTableId)
@@ -257,6 +289,8 @@ void Controller::handleWhiteSeatReleaseReplyFromServer(int chosenChessTableId)
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
 
     chosenChessTable->ui->whiteColorPlayerLabel->setText("");
+    if (chosenChessTable->ui->chessGameWidget->playerColor == PlayerColor::White)
+        chosenChessTable->ui->chessGameWidget->playerColor = PlayerColor::None;
 }
 
 void Controller::handleUserMessageDeliveryReplyFromServer(std::string message)
@@ -274,4 +308,65 @@ void Controller::handleUserMessageDeliveryReplyFromServer(std::string message)
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
 
     chosenChessTable->ui->communicationBoxPlainTextEdit->setPlainText(chosenChessTable->ui->communicationBoxPlainTextEdit->toPlainText() + QString::fromStdString(nameOfUserSendingMessage) + ":" + QString::fromStdString(userMessage) + "\n");
+}
+
+void Controller::handleUserFigurePressReplyFromServer(std::string message)
+{
+    std::vector<QPoint> possibleMoves;
+    std::size_t spacePosition;
+    QPoint possibleMove;
+
+    spacePosition = message.find(' ');
+    int chosenChessTableId = stoi(message.substr(0, spacePosition));
+    message.erase(0, spacePosition + 1);
+    spacePosition = message.find(' ');
+
+    while(spacePosition != std::string::npos)
+    {
+        possibleMove.setX(stoi(message.substr(0, spacePosition)));
+        message.erase(0, spacePosition + 1);
+        spacePosition = message.find(' ');
+        possibleMove.setY(stoi(message.substr(0, spacePosition)));
+        message.erase(0, spacePosition + 1);
+        spacePosition = message.find(' ');
+        possibleMoves.push_back(possibleMove);
+    }
+
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    chosenChessTable->ui->chessGameWidget->possibleMoves = possibleMoves;
+    chosenChessTable->ui->chessGameWidget->createPossibleMoveSquares(possibleMoves);
+}
+
+void Controller::handleUserFigureMoveReplyFromServer(std::string message)
+{
+    std::size_t spacePosition;
+    QPoint startPoint, destinationPoint;
+
+    spacePosition = message.find(' ');
+    int chosenChessTableId = stoi(message.substr(0, spacePosition));
+    message.erase(0, spacePosition + 1);
+    spacePosition = message.find(' ');
+    startPoint.setX(stoi(message.substr(0, spacePosition)));
+    message.erase(0, spacePosition + 1);
+    spacePosition = message.find(' ');
+    startPoint.setY(stoi(message.substr(0, spacePosition)));
+    message.erase(0, spacePosition + 1);
+    spacePosition = message.find(' ');
+    destinationPoint.setX(stoi(message.substr(0, spacePosition)));
+    destinationPoint.setY(stoi(message.substr(spacePosition + 1, std::string::npos)));
+
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    chosenChessTable->ui->chessGameWidget->makeMove(startPoint, destinationPoint);
+}
+
+void Controller::handleStartGameReplyFromServer(int chosenChessTableId)
+{
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    chosenChessTable->ui->chessGameWidget->inGame = true;
 }
