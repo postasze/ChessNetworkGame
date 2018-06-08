@@ -88,6 +88,8 @@ void Controller::handleClientRequest(ClientHandler *clientHandler)
         handleUserFigurePressRequest(clientHandler, message.substr(52, std::string::npos));
     else if(message.substr(0, 50) == "User has moved his figure on chess table with id: ")
         handleUserFigureMoveRequest(clientHandler, message.substr(50, std::string::npos));
+    else if(message.substr(0, 39) == "Client has exited chess table with id: ")
+        handleExitChessTableRequest(clientHandler, stoi(message.substr(39, std::string::npos)));
 }
 
 void Controller::handleNewClientCreationRequest(ClientHandler *clientHandler, std::string newUsername)
@@ -213,6 +215,9 @@ void Controller::handleResignGameRequest(ClientHandler *clientHandler, int chose
 
     chosenChessTable->chessMatch.blackPlayerReady = false;
     chosenChessTable->chessMatch.whitePlayerReady = false;
+
+    communicator.writeReplyToClient(chosenChessTable->clientWithBlackFigures, "Game has ended on table with id: " + std::to_string(chosenChessTableId));
+    communicator.writeReplyToClient(chosenChessTable->clientWithWhiteFigures, "Game has ended on table with id: " + std::to_string(chosenChessTableId));
 }
 
 void Controller::handleUserMessageDeliveryRequest(ClientHandler *clientHandler, std::string message)
@@ -242,7 +247,6 @@ void Controller::handleUserFigurePressRequest(ClientHandler *clientHandler, std:
 
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
-
 
     possibleMoves = chosenChessTable->chessMatch.getPossibleMovesForFigureOnPosition(x, y);
     reply = createReplyContainingPossibleMoves(chosenChessTableId, possibleMoves);
@@ -280,4 +284,27 @@ std::string Controller::createReplyContainingPossibleMoves(int chosenChessTableI
         replyStream << " " << possibleMoves[i].first << " " << possibleMoves[i].second;
 
     return replyStream.str();
+}
+
+void Controller::handleExitChessTableRequest(ClientHandler *clientHandler, int chosenChessTableId)
+{
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    if(std::find(chosenChessTable->clientsOnTable.begin(), chosenChessTable->clientsOnTable.end(), clientHandler) != chosenChessTable->clientsOnTable.end())
+        chosenChessTable->clientsOnTable.erase(std::find(chosenChessTable->clientsOnTable.begin(), chosenChessTable->clientsOnTable.end(), clientHandler));
+
+    if(chosenChessTable->clientWithBlackFigures == clientHandler)
+        chosenChessTable->clientWithBlackFigures = nullptr;
+
+    if(chosenChessTable->clientWithWhiteFigures == clientHandler)
+        chosenChessTable->clientWithWhiteFigures = nullptr;
+
+    if(chosenChessTable->clientsOnTable.empty())
+    {
+        chessTables.erase(std::find_if(chessTables.begin(), chessTables.end(),
+             [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;}));
+
+        communicator.writeReplyToManyClients(clientHandlers, "Chess table destroyed with id = " + std::to_string(chosenChessTableId));
+    }
 }

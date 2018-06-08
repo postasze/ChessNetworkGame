@@ -31,6 +31,7 @@ public:
     void handleUserMessageDeliveryRequest(ClientHandler *clientHandler, std::string message);
     void handleUserFigurePressRequest(ClientHandler *clientHandler, std::string message);
     void handleUserFigureMoveRequest(ClientHandler *clientHandler, std::string message);
+    void handleExitChessTableRequest(ClientHandler *clientHandler, int chosenChessTableId);
 
 private:
     std::string createReplyContainingPossibleMoves(int chosenChessTableId, std::vector<std::pair<int, int>>& possibleMoves);

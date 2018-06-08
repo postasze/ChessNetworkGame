@@ -108,6 +108,8 @@ void Controller::removeChessTable(QObject* qObject)
 {
     ChessTable* chessTable = (ChessTable*) qObject;
     chessTables.erase(std::find(chessTables.begin(), chessTables.end(), chessTable));
+
+    communicator.sendMessageToServer("Client has exited chess table with id: " + std::to_string(chessTable->chessTableId));
 }
 
 void Controller::chooseBlackColorSeatButtonClickedOnTable()
@@ -224,6 +226,10 @@ void Controller::handleReplyFromServer(QString messageFromServer)
         handleStartGameReplyFromServer(stoi(message.substr(35, std::string::npos)));
     else if(message.substr(0, 40) == "King is checked on chess table with id: ")
         handleKingCheckReplyFromServer(stoi(message.substr(40, std::string::npos)));
+    else if(message.substr(0, 33) == "Game has ended on table with id: ")
+        handleGameOverReplyFromServer(stoi(message.substr(33, std::string::npos)));
+    else if(message.substr(0, 32) == "Chess table destroyed with id = ")
+        handleChessTableDestructionReplyFromServer(stoi(message.substr(32, std::string::npos)));
 }
 
 void Controller::handleUsernameExistsReplyFromServer()
@@ -379,4 +385,21 @@ void Controller::handleKingCheckReplyFromServer(int chosenChessTableId)
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
 
     chosenChessTable->ui->communicationBoxPlainTextEdit->setPlainText(chosenChessTable->ui->communicationBoxPlainTextEdit->toPlainText() + QString::fromStdString("Krol jest szachowany") + "\n");
+}
+
+void Controller::handleGameOverReplyFromServer(int chosenChessTableId)
+{
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    chosenChessTable->ui->chessGameWidget->inGame = false;
+    chosenChessTable->ui->communicationBoxPlainTextEdit->setPlainText(chosenChessTable->ui->communicationBoxPlainTextEdit->toPlainText() + QString::fromStdString("Koniec gry") + "\n");
+}
+
+void Controller::handleChessTableDestructionReplyFromServer(int chosenChessTableId)
+{
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    mainWindow.removeChessTableLabelFromListWidget(chosenChessTableId);
 }
