@@ -46,9 +46,9 @@ void ChessGameWidget::loadFigureImages()
     whiteKingPixmap.load(":/images/figures/white_king.png");
 }
 
-void ChessGameWidget::createFigures()
+void ChessGameWidget::createFigures()//
 {
-    for(unsigned int i = 0; i < NUMBER_OF_SQUARES; ++i)
+    for(unsigned int i = 0; i < NUMBER_OF_SQUARES; ++i) //
         whiteFigures.push_back(new Figure(PlayerColor::White, FigureType::Pawn, QPointF(i * SQUARE_SIZE, 6 * SQUARE_SIZE), whitePawnPixmap));
 
     for(unsigned int i = 0; i < NUMBER_OF_SQUARES; ++i)
