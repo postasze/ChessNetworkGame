@@ -69,13 +69,15 @@ void ChessMatch::createBoard()
     }
 }
 
-void ChessMatch::pawnPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves)
+void ChessMatch::pawnPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves, bool toEliminate)
 {
     std::pair<int, int> boardPoint = std::make_pair(figure->x, figure->y); // position of figure on the board
 
     switch(figure->figureColor)
     {
-    case PlayerColor::Black:
+    if(toEliminate == false)
+    {
+        case PlayerColor::Black:
         if(boardPoint.second == 0) // end of board for pawn
             return; // returning empty possible moves
 
@@ -94,26 +96,45 @@ void ChessMatch::pawnPossibleMoves(Figure *figure, std::vector<std::pair<int, in
             if(board[boardPoint.first+1][boardPoint.second-1] != nullptr)
                 if(board[boardPoint.first+1][boardPoint.second-1]->figureColor == getOpponentColor(currentPlayerColor))
                     possibleMoves.push_back(std::pair<int, int>(boardPoint.first+1, boardPoint.second-1));
+    }
+    else
+    {
+        if(boardPoint.first > 0 && boardPoint.second > 0)
+            possibleMoves.push_back(std::pair<int, int>(boardPoint.first-1, boardPoint.second-1));
+        if(boardPoint.first < 7 && boardPoint.second > 0)
+            possibleMoves.push_back(std::pair<int, int>(boardPoint.first+1, boardPoint.second-1));
+
+    }
         break;
     case PlayerColor::White:
-        if(boardPoint.second == 7) // end of board for pawn
-            return; // returning empty possible moves
+        if(toEliminate == false)
+        {
+            if(boardPoint.second == 7) // end of board for pawn
+                return; // returning empty possible moves
 
-        if(board[boardPoint.first][boardPoint.second+1] == nullptr)
-            possibleMoves.push_back(std::pair<int, int>(boardPoint.first, boardPoint.second+1));
+            if(board[boardPoint.first][boardPoint.second+1] == nullptr)
+                possibleMoves.push_back(std::pair<int, int>(boardPoint.first, boardPoint.second+1));
 
-        if(boardPoint.second == 1 && board[boardPoint.first][2] == nullptr && board[boardPoint.first][3] == nullptr)
-            possibleMoves.push_back(std::pair<int, int>(boardPoint.first, 3));
+            if(boardPoint.second == 1 && board[boardPoint.first][2] == nullptr && board[boardPoint.first][3] == nullptr)
+                possibleMoves.push_back(std::pair<int, int>(boardPoint.first, 3));
 
-        if(boardPoint.first > 0 && boardPoint.second < 7)
-            if(board[boardPoint.first-1][boardPoint.second+1] != nullptr)
-                if(board[boardPoint.first-1][boardPoint.second+1]->figureColor == getOpponentColor(currentPlayerColor))
-                    possibleMoves.push_back(std::pair<int, int>(boardPoint.first-1, boardPoint.second+1));
+            if(boardPoint.first > 0 && boardPoint.second < 7)
+                if(board[boardPoint.first-1][boardPoint.second+1] != nullptr)
+                    if(board[boardPoint.first-1][boardPoint.second+1]->figureColor == getOpponentColor(currentPlayerColor))
+                        possibleMoves.push_back(std::pair<int, int>(boardPoint.first-1, boardPoint.second+1));
 
-        if(boardPoint.first < 7 && boardPoint.second < 7)
-            if(board[boardPoint.first+1][boardPoint.second+1] != nullptr)
-                if(board[boardPoint.first+1][boardPoint.second+1]->figureColor == getOpponentColor(currentPlayerColor))
-                    possibleMoves.push_back(std::pair<int, int>(boardPoint.first+1, boardPoint.second+1));
+            if(boardPoint.first < 7 && boardPoint.second < 7)
+                if(board[boardPoint.first+1][boardPoint.second+1] != nullptr)
+                    if(board[boardPoint.first+1][boardPoint.second+1]->figureColor == getOpponentColor(currentPlayerColor))
+                        possibleMoves.push_back(std::pair<int, int>(boardPoint.first+1, boardPoint.second+1));
+        }
+        else
+        {
+         if(boardPoint.first > 0 && boardPoint.second < 7)
+             possibleMoves.push_back(std::pair<int, int>(boardPoint.first-1, boardPoint.second+1));
+         if(boardPoint.first < 7 && boardPoint.second < 7)
+             possibleMoves.push_back(std::pair<int, int>(boardPoint.first+1, boardPoint.second+1));
+        }
         break;
     }
 }
@@ -275,14 +296,14 @@ void ChessMatch::queenPossibleMoves(Figure *figure, std::vector<std::pair<int, i
     addAllPossibleMovesInDirection(figure, possibleMoves, -1, 1); // up left
 }
 
-void ChessMatch::findPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves)
+void ChessMatch::findPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves, bool toEliminate)
 {
     possibleMoves.clear();
 
     switch(figure->figureType)
     {
     case FigureType::Pawn:
-        pawnPossibleMoves(figure, possibleMoves);
+        pawnPossibleMoves(figure, possibleMoves, toEliminate);
         break;
     case FigureType::Knight:
         knightPossibleMoves(figure, possibleMoves);
@@ -317,16 +338,13 @@ bool ChessMatch::isShortCastlingPossible()
     {
         if (whiteFlags.isShortCastlingPossible() && board[5][0] == nullptr && board[6][0] == nullptr)
             return true;
-      //  else
-         //   return false;
     }
 
     else if (currentPlayerColor == PlayerColor::Black)
     {
         if (blackFlags.isShortCastlingPossible() && board[5][7] == nullptr && board[6][7] == nullptr)
             return true;
-   //     else
-        //    return false;
+
     }
 
     return false;
@@ -357,8 +375,10 @@ void ChessMatch::eraseForbiddenKingMoves(std::vector<std::pair<int, int>>& possi
     if (currentPlayerColor == PlayerColor::White)
     {
         for(unsigned int i = 0; i < blackFigures.size(); i++)
-        {
-            findPossibleMoves(blackFigures[i], forbiddenMoves);
+        {   if(blackFigures[i]->figureType == FigureType::Pawn)
+                findPossibleMoves(blackFigures[i], forbiddenMoves,true);
+            else
+                findPossibleMoves(blackFigures[i], forbiddenMoves);
             for(unsigned int j = 0; j < possibleMoves.size(); j++)
                 if((iter = std::find(forbiddenMoves.begin(), forbiddenMoves.end(), possibleMoves[j])) != forbiddenMoves.end())
                     possibleMoves.erase(iter);
@@ -368,7 +388,10 @@ void ChessMatch::eraseForbiddenKingMoves(std::vector<std::pair<int, int>>& possi
     {
         for(unsigned int i = 0; i < whiteFigures.size(); i++)
         {
-            findPossibleMoves(whiteFigures[i], forbiddenMoves);
+            if(whiteFigures[i]->figureType == FigureType::Pawn)
+                findPossibleMoves(whiteFigures[i], forbiddenMoves,true);
+            else
+                findPossibleMoves(whiteFigures[i], forbiddenMoves);
             for(unsigned int j = 0; j < possibleMoves.size(); j++)
                 if((iter = std::find(forbiddenMoves.begin(), forbiddenMoves.end(), possibleMoves[j])) != forbiddenMoves.end())
                     possibleMoves.erase(iter);

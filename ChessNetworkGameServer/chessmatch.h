@@ -20,9 +20,9 @@ private:
     void createWhiteFigures();
     void createBoard();
 
-    void findPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves);
+    void findPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves, bool toEliminate=false);
     void addAllPossibleMovesInDirection(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves, int h, int v);
-    void pawnPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves);
+    void pawnPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves, bool toEliminate=false);
     void knightPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves);
     void bishopPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves);
     void rookPossibleMoves(Figure *figure, std::vector<std::pair<int, int>>& possibleMoves);
