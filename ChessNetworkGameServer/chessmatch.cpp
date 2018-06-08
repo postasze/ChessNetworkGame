@@ -10,6 +10,8 @@ ChessMatch::ChessMatch()
     selectedFigure = nullptr;
     blackPlayerReady = false;
     whitePlayerReady = false;
+    isBlackKingChecked = false;
+    isWhiteKingChecked = false;
 }
 
 void ChessMatch::createFigures()
@@ -375,8 +377,7 @@ void ChessMatch::eraseForbiddenKingMoves(std::vector<std::pair<int, int>>& possi
     if (currentPlayerColor == PlayerColor::White)
     {
         for(unsigned int i = 0; i < blackFigures.size(); i++)
-        {
-            if(blackFigures[i]->figureType == FigureType::Pawn)
+        {   if(blackFigures[i]->figureType == FigureType::Pawn)
                 findPossibleMoves(blackFigures[i], forbiddenMoves,true);
             else
                 findPossibleMoves(blackFigures[i], forbiddenMoves);
@@ -499,6 +500,10 @@ std::pair<int, int> ChessMatch::makePlayerMove(std::pair<int, int> destinationPo
             break;
         }
     }
+    if (isKingChecked())
+    {
+        std::cout<<"King is checked";
+    }
     currentPlayerColor = getOpponentColor(currentPlayerColor);
 
     return startPoint;
@@ -517,5 +522,58 @@ void ChessMatch::removeFigureOnSquare(std::pair<int, int> boardPoint)
     }
     delete board[boardPoint.first][boardPoint.second];
 }
+bool ChessMatch::isKingChecked()
+{
+    std::vector<std::pair<int, int>> forbiddenMoves;
+    //std::vector<std::pair<int, int>>::iterator iter;
+     std::pair<int, int> kingPosition;
 
-//bool ChessMatch::isKingChecked()
+        if (currentPlayerColor == PlayerColor::White)
+        {
+            for(unsigned int i = 0; i < blackFigures.size(); ++i)
+               if(blackFigures[i]->figureType == FigureType::King)
+                    kingPosition = std::make_pair(blackFigures[i]->x, blackFigures[i]->y);
+
+            for (unsigned int j = 0; j< whiteFigures.size(); ++j)
+            {
+                if(whiteFigures[j]->figureType == FigureType::Pawn)
+                    findPossibleMoves(whiteFigures[j], forbiddenMoves,true);
+                else
+                    findPossibleMoves(whiteFigures[j], forbiddenMoves);
+               if(std::find(forbiddenMoves.begin(), forbiddenMoves.end(), kingPosition) != forbiddenMoves.end())
+               {
+                   isBlackKingChecked = true;
+                   return true;
+               }
+
+            }
+         return false;
+
+         }
+        else
+        {
+                 for(unsigned int i = 0; i < whiteFigures.size(); ++i)
+                    if(whiteFigures[i]->figureType == FigureType::King)
+                        kingPosition = std::make_pair(whiteFigures[i]->x, whiteFigures[i]->y);
+
+                    for (unsigned int j = 0; j < blackFigures.size(); ++j)
+                    {
+                        if(blackFigures[j]->figureType == FigureType::Pawn)
+                            findPossibleMoves(blackFigures[j], forbiddenMoves, true);
+                        else
+                             findPossibleMoves(blackFigures[j], forbiddenMoves);
+
+                        if(std::find(forbiddenMoves.begin(), forbiddenMoves.end(), kingPosition) != forbiddenMoves.end())
+                        {
+                            isWhiteKingChecked = true;
+                            return true;
+                        }
+
+                    }
+                    return false;
+
+          }
+
+
+}
+

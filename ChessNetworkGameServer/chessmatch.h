@@ -1,6 +1,7 @@
 #ifndef CHESSMATCH_H
 #define CHESSMATCH_H
 
+#include<iostream>
 #include <vector>
 #include "constants.h"
 #include "figure.h"
@@ -13,6 +14,8 @@ public:
     std::vector<std::pair<int, int>> getPossibleMovesForFigureOnPosition(int x, int y);
     std::pair<int, int> makePlayerMove(std::pair<int, int> destinationPoint);
     bool blackPlayerReady, whitePlayerReady;
+    bool isBlackKingChecked;
+    bool isWhiteKingChecked;
 
 private:
     void createFigures();
@@ -32,6 +35,7 @@ private:
     void promotePawn(Figure* promotedOne);
     PlayerColor getOpponentColor(PlayerColor playerColor);
     void removeFigureOnSquare(std::pair<int, int> boardPoint);
+    bool isKingChecked();
 
     Figure* board[NUMBER_OF_SQUARES][NUMBER_OF_SQUARES];
     std::vector<Figure*> blackFigures, whiteFigures;

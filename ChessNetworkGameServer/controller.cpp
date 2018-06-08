@@ -266,6 +266,8 @@ void Controller::handleUserFigureMoveRequest(ClientHandler *clientHandler, std::
 
     startPoint = chosenChessTable->chessMatch.makePlayerMove(destinationPoint);
     communicator.writeReplyToManyClients(chosenChessTable->clientsOnTable, "User has moved his figure on chess table with id: " + std::to_string(chosenChessTableId) + " " + std::to_string(startPoint.first) + " " + std::to_string(startPoint.second) + " " + std::to_string(destinationPoint.first) + " " + std::to_string(destinationPoint.second));
+    if(chosenChessTable->chessMatch.isBlackKingChecked || chosenChessTable->chessMatch.isWhiteKingChecked)
+        communicator.writeReplyToManyClients(chosenChessTable->clientsOnTable, "King is checked on chess table with id: " + std::to_string(chosenChessTableId));
 }
 
 std::string Controller::createReplyContainingPossibleMoves(int chosenChessTableId, std::vector<std::pair<int, int>>& possibleMoves)

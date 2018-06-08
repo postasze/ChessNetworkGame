@@ -8,7 +8,6 @@ class Figure
 public:
     Figure(PlayerColor figureColor, FigureType figureType, int x, int y);
     Figure();
-
     PlayerColor figureColor;
     FigureType figureType;
     int x, y;

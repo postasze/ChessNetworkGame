@@ -47,6 +47,7 @@ private slots:
     void handleUserFigurePressReplyFromServer(std::string message);
     void handleUserFigureMoveReplyFromServer(std::string message);
     void handleStartGameReplyFromServer(int chosenChessTableId);
+    void handleKingCheckReplyFromServer(int chosenChessTableId);
 
 private:
     Communicator communicator;

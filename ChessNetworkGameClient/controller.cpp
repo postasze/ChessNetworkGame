@@ -222,6 +222,8 @@ void Controller::handleReplyFromServer(QString messageFromServer)
         handleUserFigureMoveReplyFromServer(message.substr(50, std::string::npos));
     else if(message.substr(0, 35) == "Game has started on table with id: ")
         handleStartGameReplyFromServer(stoi(message.substr(35, std::string::npos)));
+    else if(message.substr(0, 40) == "King is checked on chess table with id: ")
+        handleKingCheckReplyFromServer(stoi(message.substr(40, std::string::npos)));
 }
 
 void Controller::handleUsernameExistsReplyFromServer()
@@ -369,4 +371,12 @@ void Controller::handleStartGameReplyFromServer(int chosenChessTableId)
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
 
     chosenChessTable->ui->chessGameWidget->inGame = true;
+}
+
+void Controller::handleKingCheckReplyFromServer(int chosenChessTableId)
+{
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    chosenChessTable->ui->communicationBoxPlainTextEdit->setPlainText(chosenChessTable->ui->communicationBoxPlainTextEdit->toPlainText() + QString::fromStdString("Krol jest szachowany") + "\n");
 }
