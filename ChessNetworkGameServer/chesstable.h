@@ -2,6 +2,7 @@
 #define CHESSTABLE_H
 
 #include <vector>
+#include "chessmatch.h"
 
 class ClientHandler;
 
@@ -14,6 +15,7 @@ public:
     std::vector<ClientHandler*> clientsOnTable;
     ClientHandler *clientWithBlackFigures;
     ClientHandler *clientWithWhiteFigures;
+    ChessMatch chessMatch;
 
 private:
 

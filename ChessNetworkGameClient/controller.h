@@ -26,13 +26,15 @@ private slots:
     void removeChessTable(QObject* qObject);
     void createNewChessTable(int id);
     void handleReplyFromServer(QString messageFromServer);
-    void chooseBlackColorSeatButtonClicked();
-    void freeBlackColorSeatButtonClicked();
-    void chooseWhiteColorSeatButtonClicked();
-    void freeWhiteColorSeatButtonClicked();
-    void startButtonClicked();
-    void resignButtonClicked();
-    void sendMessageButtonClicked();
+    void chooseBlackColorSeatButtonClickedOnTable();
+    void freeBlackColorSeatButtonClickedOnTable();
+    void chooseWhiteColorSeatButtonClickedOnTable();
+    void freeWhiteColorSeatButtonClickedOnTable();
+    void startButtonClickedOnTable();
+    void resignButtonClickedOnTable();
+    void sendMessageButtonClickedOnTable();
+    void playerFigurePressedOnTable(QPoint figurePosition);
+    void playerHasMovedOnTable(QPoint figurePosition);
 
     void handleUsernameExistsReplyFromServer();
     void handleUsernameAcceptedReplyFromServer();
@@ -42,6 +44,9 @@ private slots:
     void handleWhiteSeatPlacementReplyFromServer(std::string message);
     void handleWhiteSeatReleaseReplyFromServer(int chosenChessTableId);
     void handleUserMessageDeliveryReplyFromServer(std::string message);
+    void handleUserFigurePressReplyFromServer(std::string message);
+    void handleUserFigureMoveReplyFromServer(std::string message);
+    void handleStartGameReplyFromServer(int chosenChessTableId);
 
 private:
     Communicator communicator;

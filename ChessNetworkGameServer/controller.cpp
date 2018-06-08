@@ -1,5 +1,6 @@
 #include "controller.h"
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include "chesstable.h"
 
@@ -44,11 +45,17 @@ void Controller::removeClientFromAllTables(ClientHandler *clientHandler)
     {
         if((clientPosition = std::find(chessTables[i]->clientsOnTable.begin(), chessTables[i]->clientsOnTable.end(), clientHandler)) != chessTables[i]->clientsOnTable.end())
         {
-        chessTables[i]->clientsOnTable.erase(clientPosition);
-        if(chessTables[i]->clientWithBlackFigures == clientHandler)
-            chessTables[i]->clientWithBlackFigures = nullptr;
-        if(chessTables[i]->clientWithWhiteFigures == clientHandler)
-            chessTables[i]->clientWithWhiteFigures = nullptr;
+            chessTables[i]->clientsOnTable.erase(clientPosition);
+            if(chessTables[i]->clientWithBlackFigures == clientHandler)
+            {
+                chessTables[i]->clientWithBlackFigures = nullptr;
+                chessTables[i]->chessMatch.blackPlayerReady = false;
+            }
+            if(chessTables[i]->clientWithWhiteFigures == clientHandler)
+            {
+                chessTables[i]->clientWithWhiteFigures = nullptr;
+                chessTables[i]->chessMatch.whitePlayerReady = false;
+            }
         }
     }
 }
@@ -77,6 +84,10 @@ void Controller::handleClientRequest(ClientHandler *clientHandler)
         handleResignGameRequest(clientHandler, stoi(message.substr(50, std::string::npos)));
     else if(message.substr(0, 46) == "User has sent message on chess table with id: ")
         handleUserMessageDeliveryRequest(clientHandler, message.substr(46, std::string::npos));
+    else if(message.substr(0, 52) == "User has pressed his figure on chess table with id: ")
+        handleUserFigurePressRequest(clientHandler, message.substr(52, std::string::npos));
+    else if(message.substr(0, 50) == "User has moved his figure on chess table with id: ")
+        handleUserFigureMoveRequest(clientHandler, message.substr(50, std::string::npos));
 }
 
 void Controller::handleNewClientCreationRequest(ClientHandler *clientHandler, std::string newUsername)
@@ -145,6 +156,7 @@ void Controller::handleBlackColorSeatReleaseRequest(ClientHandler *clientHandler
     if (chosenChessTable->clientWithBlackFigures == clientHandler)
     {
         chosenChessTable->clientWithBlackFigures = nullptr;
+        chosenChessTable->chessMatch.blackPlayerReady = false;
         communicator.writeReplyToManyClients(chosenChessTable->clientsOnTable, "User has released the seat with black figures on table with id: " + std::to_string(chosenChessTableId));
     }
 }
@@ -171,6 +183,7 @@ void Controller::handleWhiteColorSeatReleaseRequest(ClientHandler *clientHandler
     if (chosenChessTable->clientWithWhiteFigures == clientHandler)
     {
         chosenChessTable->clientWithWhiteFigures = nullptr;
+        chosenChessTable->chessMatch.whitePlayerReady = false;
         communicator.writeReplyToManyClients(chosenChessTable->clientsOnTable, "User has released the seat with white figures on table with id: " + std::to_string(chosenChessTableId));
     }
 }
@@ -179,12 +192,27 @@ void Controller::handleStartGameRequest(ClientHandler *clientHandler, int chosen
 {
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    if(chosenChessTable->clientWithBlackFigures == clientHandler)
+        chosenChessTable->chessMatch.blackPlayerReady = true;
+
+    if(chosenChessTable->clientWithWhiteFigures == clientHandler)
+        chosenChessTable->chessMatch.whitePlayerReady = true;
+
+    if(chosenChessTable->chessMatch.blackPlayerReady && chosenChessTable->chessMatch.whitePlayerReady)
+    {
+        communicator.writeReplyToClient(chosenChessTable->clientWithBlackFigures, "Game has started on table with id: " + std::to_string(chosenChessTableId));
+        communicator.writeReplyToClient(chosenChessTable->clientWithWhiteFigures, "Game has started on table with id: " + std::to_string(chosenChessTableId));
+    }
 }
 
 void Controller::handleResignGameRequest(ClientHandler *clientHandler, int chosenChessTableId)
 {
     ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    chosenChessTable->chessMatch.blackPlayerReady = false;
+    chosenChessTable->chessMatch.whitePlayerReady = false;
 }
 
 void Controller::handleUserMessageDeliveryRequest(ClientHandler *clientHandler, std::string message)
@@ -197,4 +225,57 @@ void Controller::handleUserMessageDeliveryRequest(ClientHandler *clientHandler, 
         [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
 
     communicator.writeReplyToManyClients(chosenChessTable->clientsOnTable, "User has sent message on chess table with id: " + std::to_string(chosenChessTableId) + " " + clientHandler->userName + " " + userMessage);
+}
+
+void Controller::handleUserFigurePressRequest(ClientHandler *clientHandler, std::string message)
+{
+    std::vector<std::pair<int, int>> possibleMoves;
+    std::size_t spacePosition;
+    std::string reply;
+
+    spacePosition = message.find(' ');
+    int chosenChessTableId = stoi(message.substr(0, spacePosition));
+    message.erase(0, spacePosition + 1);
+    spacePosition = message.find(' ');
+    int x = stoi(message.substr(0, spacePosition));
+    int y = stoi(message.substr(spacePosition + 1, std::string::npos));
+
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+
+    possibleMoves = chosenChessTable->chessMatch.getPossibleMovesForFigureOnPosition(x, y);
+    reply = createReplyContainingPossibleMoves(chosenChessTableId, possibleMoves);
+    communicator.writeReplyToClient(clientHandler, reply);
+}
+
+void Controller::handleUserFigureMoveRequest(ClientHandler *clientHandler, std::string message)
+{
+    std::size_t spacePosition;
+    std::pair<int, int> startPoint, destinationPoint;
+
+    spacePosition = message.find(' ');
+    int chosenChessTableId = stoi(message.substr(0, spacePosition));
+    message.erase(0, spacePosition + 1);
+    spacePosition = message.find(' ');
+    destinationPoint.first = stoi(message.substr(0, spacePosition));
+    destinationPoint.second = stoi(message.substr(spacePosition + 1, std::string::npos));
+
+    ChessTable *chosenChessTable = *std::find_if(chessTables.begin(), chessTables.end(),
+        [chosenChessTableId](ChessTable *chessTable) {return chessTable->chessTableId == chosenChessTableId;});
+
+    startPoint = chosenChessTable->chessMatch.makePlayerMove(destinationPoint);
+    communicator.writeReplyToManyClients(chosenChessTable->clientsOnTable, "User has moved his figure on chess table with id: " + std::to_string(chosenChessTableId) + " " + std::to_string(startPoint.first) + " " + std::to_string(startPoint.second) + " " + std::to_string(destinationPoint.first) + " " + std::to_string(destinationPoint.second));
+}
+
+std::string Controller::createReplyContainingPossibleMoves(int chosenChessTableId, std::vector<std::pair<int, int>>& possibleMoves)
+{
+    std::ostringstream replyStream;
+
+    replyStream << "Possible moves points on chess table with id: " << std::to_string(chosenChessTableId);
+
+    for(unsigned int i = 0; i < possibleMoves.size(); i++)
+        replyStream << " " << possibleMoves[i].first << " " << possibleMoves[i].second;
+
+    return replyStream.str();
 }

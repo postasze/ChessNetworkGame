@@ -17,7 +17,7 @@ enum class FigureType {
 };
 
 enum PlayerColor {
-    Black, White
+    Black, White, None
 };
 
 

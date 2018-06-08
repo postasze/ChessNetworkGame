@@ -8,11 +8,15 @@ SOURCES += main.cpp \
     clienthandler.cpp \
     communicator.cpp \
     controller.cpp \
-    chesstable.cpp
+    chesstable.cpp \
+    chessmatch.cpp \
+    figure.cpp
 
 HEADERS += \
     constants.h \
     clienthandler.h \
     communicator.h \
     controller.h \
-    chesstable.h
+    chesstable.h \
+    chessmatch.h \
+    figure.h
