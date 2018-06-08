@@ -35,7 +35,7 @@ private:
     void promotePawn(Figure* promotedOne);
     PlayerColor getOpponentColor(PlayerColor playerColor);
     void removeFigureOnSquare(std::pair<int, int> boardPoint);
-    bool isKingChecked();
+    void setKingChecked();
 
     Figure* board[NUMBER_OF_SQUARES][NUMBER_OF_SQUARES];
     std::vector<Figure*> blackFigures, whiteFigures;

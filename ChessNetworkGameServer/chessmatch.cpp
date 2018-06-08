@@ -500,10 +500,7 @@ std::pair<int, int> ChessMatch::makePlayerMove(std::pair<int, int> destinationPo
             break;
         }
     }
-    if (isKingChecked())
-    {
-        std::cout<<"King is checked";
-    }
+   setKingChecked();
     currentPlayerColor = getOpponentColor(currentPlayerColor);
 
     return startPoint;
@@ -522,13 +519,13 @@ void ChessMatch::removeFigureOnSquare(std::pair<int, int> boardPoint)
     }
     delete board[boardPoint.first][boardPoint.second];
 }
-bool ChessMatch::isKingChecked()
+void ChessMatch::setKingChecked()
 {
     std::vector<std::pair<int, int>> forbiddenMoves;
     //std::vector<std::pair<int, int>>::iterator iter;
      std::pair<int, int> kingPosition;
 
-        if (currentPlayerColor == PlayerColor::White)
+        if (currentPlayerColor == PlayerColor::White || isBlackKingChecked )
         {
             for(unsigned int i = 0; i < blackFigures.size(); ++i)
                if(blackFigures[i]->figureType == FigureType::King)
@@ -543,14 +540,13 @@ bool ChessMatch::isKingChecked()
                if(std::find(forbiddenMoves.begin(), forbiddenMoves.end(), kingPosition) != forbiddenMoves.end())
                {
                    isBlackKingChecked = true;
-                   return true;
+                   return;
                }
-
             }
-         return false;
+            isBlackKingChecked = false;
 
          }
-        else
+        else if (currentPlayerColor == PlayerColor::Black || isWhiteKingChecked)
         {
                  for(unsigned int i = 0; i < whiteFigures.size(); ++i)
                     if(whiteFigures[i]->figureType == FigureType::King)
@@ -566,14 +562,16 @@ bool ChessMatch::isKingChecked()
                         if(std::find(forbiddenMoves.begin(), forbiddenMoves.end(), kingPosition) != forbiddenMoves.end())
                         {
                             isWhiteKingChecked = true;
-                            return true;
+                            return;
                         }
 
                     }
-                    return false;
+                    isWhiteKingChecked =  false;
 
           }
 
 
 }
+
+
 
