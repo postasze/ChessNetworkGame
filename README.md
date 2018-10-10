@@ -1,8 +1,12 @@
 # Chess network game
 Sieciowa gra w szachy wykorzystująca sieciowe API BSD Sockets
-Aplikacja MMO w której wielu graczy może tworzyć stoł szachowe i dołączać do istniejących stołów szachowych
+
+Aplikacja MMO w której wielu graczy może tworzyć stoły szachowe i dołączać do istniejących stołów szachowych
+
 Aplikacja działa w trybie klient - serwer, jest jeden proces serwera i wiele procesów klientów
+
 Dokumentacja aplikacji znajduje się w folderze docs
+
 Screeny z działania aplikacji znajdują się w folderze screens
 
 1. Instrukcja kompilacji i instalacji aplikacji
@@ -27,8 +31,10 @@ Alternatywnie można też uruchomić aplikację wewnątrz środowiska Qt
 2. Instrukcja uruchamiania aplikacji
 
 Aplikacja sprawnie działa na linuxie Ubuntu, nie testowano działania na windowsie
+
 Aplikację można uruchamiać na wielu komputerach podłączonych do tej samej sieci bezprzewodowej lub przewodowej,
 przy czym proces serwera powinien być uruchomiony na jednym komputerze a procesy klientów na pozostałych komputerach
+
 Aplikację można też uruchomić na jednym komputerze poprzez uruchomienie na nim wszystkich procesów
 
 2.1 Najpierw uruchamiamy projekt ChessNetworkGameServer (1 proces serwera), który powinien wyświetlić w konsoli numer portu w sieci
@@ -37,7 +43,9 @@ Aplikację można też uruchomić na jednym komputerze poprzez uruchomienie na n
 np. ./ChessNetworkGameClient adres_ip_serwera port_serwera
 
 2.3 jeśli uruchamiamy aplikację na wielu komputerach to jako adres ip podajemy adres ip komputera w sieci, na którym uruchomiony jest proces serwera
+
 Adres ten można pobrać komendą ifconfig na linuxie lub ipconfig na windowsie
+
 jeśli uruchamiamy wszystkie procesy na jednym komputerze to możemy jako adres ip podać 127.0.0.1 (localhost)
 np. ./ChessNetworkGameClient 127.0.0.1 51623
 
