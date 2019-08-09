@@ -1,5 +1,8 @@
-# Chess network game
-Sieciowa gra w szachy wykorzystująca sieciowe API BSD Sockets
+# Chess MMO Network Game 2D player vs player on many chess tables in Qt C/C++ programming languages
+
+ Application made for Web technics subject in school.
+ 
+Sieciowa gra w szachy 2D wykorzystująca sieciowe API BSD Sockets napisana w Qt C/C++ na przedmiocie w szkole - TIN (Techniki internetowe).
 
 Aplikacja MMO w której wielu graczy może tworzyć stoły szachowe i dołączać do istniejących stołów szachowych
 
